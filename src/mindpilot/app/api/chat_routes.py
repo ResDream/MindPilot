@@ -137,7 +137,7 @@ chat_router.post(
 #             else None
 #         )
 #
-#         chat_model_config = {}  # TODO: 前端支持配置模型
+#         chat_model_config = {}
 #         tool_names = [x["function"]["name"] for x in body.tools]
 #         tool_config = {name: get_tool_config(name) for name in tool_names}
 #         result = await chat(
