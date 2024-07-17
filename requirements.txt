@@ -6,3 +6,15 @@ dataclasses-json == 0.6.7
 langchain == 0.2.7
 starlette~=0.37.2
 sse-starlette == 2.1.2
+openai == 1.35.14
+langchain_openai == 0.1.16
+sqlalchemy~=2.0.31
+pillow~=10.4.0
+requests~=2.32.2
+httpx~=0.27.0
+pydantic~=2.8.2
+numexpr~=2.8.7
+langchain_community==0.2.7
+markdownify~=0.13.1
+strsimpy~=0.2.1
+metaphor_python==0.1.23

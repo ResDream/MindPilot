@@ -13,16 +13,16 @@ from langchain_core.output_parsers import StrOutputParser
 from sse_starlette.sse import EventSourceResponse
 
 from ..agent.agents_registry import agents_registry
-from chatchat.server.api_server.api_schemas import OpenAIChatOutput
-from chatchat.server.callback_handler.agent_callback_handler import (
+from ..api.api_schemas import OpenAIChatOutput
+from ..callback_handler.agent_callback_handler import (
     AgentExecutorAsyncIteratorCallbackHandler,
     AgentStatus,
 )
-from chatchat.server.chat.utils import History
-from chatchat.server.memory.conversation_db_buffer_memory import (
-    ConversationBufferDBMemory,
-)
-from chatchat.server.utils import (
+from ..chat.utils import History
+# from chatchat.server.memory.conversation_db_buffer_memory import (
+#     ConversationBufferDBMemory,
+# )
+from ..utils import (
     MsgType,
     get_ChatOpenAI,
     get_prompt_template,
@@ -43,7 +43,6 @@ def create_models_from_config(configs, callbacks, stream):
                 max_tokens=params.get("max_tokens", 1000),
                 callbacks=callbacks,
                 streaming=stream,
-                local_wrap=True,
             )
             models[model_type] = model_instance
             prompt_name = params.get("prompt_name", "default")
@@ -67,11 +66,12 @@ def create_models_chains(
             [i.to_msg_template() for i in history] + [input_msg]
         )
     elif conversation_id and history_len > 0:
-        memory = ConversationBufferDBMemory(
-            conversation_id=conversation_id,
-            llm=models["llm_model"],
-            message_limit=history_len,
-        )
+        # memory = ConversationBufferDBMemory(
+        #     conversation_id=conversation_id,
+        #     llm=models["llm_model"],
+        #     message_limit=history_len,
+        # )
+        pass
     else:
         input_msg = History(role="user", content=prompts["llm_model"]).to_msg_template(
             False
