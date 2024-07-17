@@ -18,3 +18,4 @@ langchain_community==0.2.7
 markdownify~=0.13.1
 strsimpy~=0.2.1
 metaphor_python==0.1.23
+langchainhub==0.1.20

@@ -17,7 +17,7 @@ def weather_check(
 
     tool_config = {
                 "use": False,
-                "api_key": "S8vrB4U_-c5mvAMiK",
+                "api_key": "SE7CGiRD5dvls08Ub",
             }
     api_key = tool_config.get("api_key")
     url = f"https://api.seniverse.com/v3/weather/now.json?key={api_key}&location={city}&language=zh-Hans&unit=c"

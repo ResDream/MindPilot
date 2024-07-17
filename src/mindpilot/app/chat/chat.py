@@ -32,6 +32,43 @@ from ..utils import (
 
 
 def create_models_from_config(configs, callbacks, stream):
+    configs = {
+            # 意图识别不需要输出，模型后台知道就行
+            "preprocess_model": {
+                "glm-4-0520": {
+                    "temperature": 0.05,
+                    "max_tokens": 4096,
+                    "history_len": 100,
+                    "prompt_name": "default",
+                    "callbacks": False,
+                },
+            },
+            "llm_model": {
+                "glm-4-0520": {
+                    "temperature": 0.9,
+                    "max_tokens": 4096,
+                    "history_len": 10,
+                    "prompt_name": "default",
+                    "callbacks": True,
+                },
+            },
+            "action_model": {
+                "glm-4-0520": {
+                    "temperature": 0.01,
+                    "max_tokens": 4096,
+                    "prompt_name": "default",
+                    "callbacks": True,
+                },
+            },
+            "postprocess_model": {
+                "glm-4-0520": {
+                    "temperature": 0.01,
+                    "max_tokens": 4096,
+                    "prompt_name": "default",
+                    "callbacks": True,
+                }
+            }
+    }
     models = {}
     prompts = {}
     for model_type, model_configs in configs.items():
@@ -94,7 +131,7 @@ def create_models_chains(
 
 
 async def chat(
-    query: str = Body(..., description="用户输入"),
+    query: str = Body(..., description="用户输入", examples=[""]),
     metadata: dict = Body({}, description="附件，可能是图像或者其他功能", examples=[]),
     conversation_id: str = Body("", description="对话框ID"),
     message_id: str = Body(None, description="数据库消息ID"),
@@ -202,7 +239,7 @@ async def chat(
                 model=models["llm_model"].model_name,
                 status=data["status"],
                 message_type=data["message_type"],
-                message_id=message_id,
+                # message_id=message_id,
             )
             yield ret.model_dump_json()
 

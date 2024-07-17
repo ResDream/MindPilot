@@ -10,11 +10,11 @@ from langchain_core.tools import BaseTool
 
 
 def agents_registry(
-    llm: BaseLanguageModel,
-    tools: Sequence[BaseTool] = [],
-    callbacks: List[BaseCallbackHandler] = [],
-    prompt: str = None,
-    verbose: bool = False,
+        llm: BaseLanguageModel,
+        tools: Sequence[BaseTool] = [],
+        callbacks: List[BaseCallbackHandler] = [],
+        prompt: str = None,
+        verbose: bool = False,
 ):
     if prompt is not None:
         prompt = ChatPromptTemplate.from_messages([SystemMessage(content=prompt)])
@@ -23,8 +23,7 @@ def agents_registry(
     agent = create_structured_chat_agent(llm=llm, tools=tools, prompt=prompt)
 
     agent_executor = AgentExecutor(
-        agent=agent, tools=tools, verbose=verbose, callbacks=callbacks
+        agent=agent, tools=tools, verbose=verbose, callbacks=callbacks, handle_parsing_errors=True
     )
 
     return agent_executor
-
