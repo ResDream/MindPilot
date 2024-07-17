@@ -12,8 +12,7 @@ from langchain_core.messages import AIMessage, HumanMessage, convert_to_messages
 from langchain_core.output_parsers import StrOutputParser
 from sse_starlette.sse import EventSourceResponse
 
-from chatchat.server.agent.agent_factory.agents_registry import agents_registry
-from chatchat.server.agent.container import container
+from ..agent.agents_registry import agents_registry
 from chatchat.server.api_server.api_schemas import OpenAIChatOutput
 from chatchat.server.callback_handler.agent_callback_handler import (
     AgentExecutorAsyncIteratorCallbackHandler,
@@ -58,7 +57,6 @@ def create_models_chains(
 ):
     memory = None
     chat_prompt = None
-    container.metadata = metadata
 
     if history:
         history = [History.from_data(h) for h in history]
@@ -96,7 +94,7 @@ def create_models_chains(
 
 
 async def chat(
-    query: str = Body(..., description="用户输入", examples=["恼羞成怒"]),
+    query: str = Body(..., description="用户输入"),
     metadata: dict = Body({}, description="附件，可能是图像或者其他功能", examples=[]),
     conversation_id: str = Body("", description="对话框ID"),
     message_id: str = Body(None, description="数据库消息ID"),
@@ -106,8 +104,8 @@ async def chat(
         description="历史对话，设为一个整数可以从数据库中读取历史消息",
         examples=[
             [
-                {"role": "user", "content": "我们来玩成语接龙，我先来，生龙活虎"},
-                {"role": "assistant", "content": "虎头虎脑"},
+                {"role": "user", "content": "你好"},
+                {"role": "assistant", "content": "您好，我是智能Agent桌面助手MindPilot，请问有什么可以帮您？"},
             ]
         ],
     ),
@@ -120,19 +118,6 @@ async def chat(
     async def chat_iterator() -> AsyncIterable[OpenAIChatOutput]:
         callback = AgentExecutorAsyncIteratorCallbackHandler()
         callbacks = [callback]
-
-        # Enable langchain-chatchat to support langfuse
-        import os
-
-        langfuse_secret_key = os.environ.get("LANGFUSE_SECRET_KEY")
-        langfuse_public_key = os.environ.get("LANGFUSE_PUBLIC_KEY")
-        langfuse_host = os.environ.get("LANGFUSE_HOST")
-        if langfuse_secret_key and langfuse_public_key and langfuse_host:
-            from langfuse import Langfuse
-            from langfuse.callback import CallbackHandler
-
-            langfuse_handler = CallbackHandler()
-            callbacks.append(langfuse_handler)
 
         models, prompts = create_models_from_config(
             callbacks=callbacks, configs=chat_model_config, stream=stream
@@ -220,16 +205,7 @@ async def chat(
                 message_id=message_id,
             )
             yield ret.model_dump_json()
-        # yield OpenAIChatOutput( # return blank text lastly
-        #         id=f"chat{uuid.uuid4()}",
-        #         object="chat.completion.chunk",
-        #         content="",
-        #         role="assistant",
-        #         model=models["llm_model"].model_name,
-        #         status = data["status"],
-        #         message_type = data["message_type"],
-        #         message_id=message_id,
-        # )
+
         await task
 
     if stream:
