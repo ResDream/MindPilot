@@ -26,7 +26,7 @@ TOOL_CONFIG = {
                     "result_len": 3,
                     "metaphor_api_key": "",
                     "split_result": False,
-                    "chunk_size": 500,
+                    "chunk_size": 1000,
                     "chunk_overlap": 0,
                 },
                 "duckduckgo": {"result_len": 3},
