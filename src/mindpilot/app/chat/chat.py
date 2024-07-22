@@ -99,7 +99,7 @@ async def chat(
     ),
     stream: bool = Body(True, description="流式输出"),
     chat_model_config: dict = Body({}, description="LLM 模型配置", examples=[]),
-    tool_config: dict = Body({}, description="工具配置", examples=[]),
+    tool_config: List[str] = Body([], description="工具配置", examples=["weather_check"]),
 ):
     """Agent 对话"""
 
