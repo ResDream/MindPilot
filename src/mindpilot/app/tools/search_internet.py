@@ -6,6 +6,7 @@ from langchain_community.utilities import BingSearchAPIWrapper
 from langchain_community.utilities import DuckDuckGoSearchAPIWrapper
 from markdownify import markdownify
 from strsimpy.normalized_levenshtein import NormalizedLevenshtein
+from app.utils import get_tool_config
 
 from ..pydantic_v1 import Field
 # from chatchat.server.utils import get_tool_config
@@ -112,31 +113,5 @@ def search_engine(query: str, config: dict):
 @regist_tool(title="互联网搜索")
 def search_internet(query: str = Field(description="query for Internet search")):
     """Use this tool to use bing search engine to search the internet and get information."""
-    # TODO 设计配置文件
-    tool_config = {
-                "use": False,
-                "search_engine_name": "bing",
-                "search_engine_config": {
-                    "bing": {
-                        "result_len": 3,
-                        "bing_search_url": "https://api.bing.microsoft.com/v7.0/search",
-                        "bing_key": "0f42b09dce16474a81c01562ded071dc",
-                    },
-                    "metaphor": {
-                        "result_len": 3,
-                        "metaphor_api_key": "",
-                        "split_result": False,
-                        "chunk_size": 5000,
-                        "chunk_overlap": 0,
-                    },
-                    "duckduckgo": {"result_len": 3},
-                },
-                "top_k": 10,
-                "verbose": "Origin",
-                "conclude_prompt": "<指令>这是搜索到的互联网信息，请你根据这些信息进行提取并有调理，简洁的回答问题。如果无法从中得到答案，请说 “无法搜索到能回答问题的内容”。 "
-                "</指令>\n<已知信息>{{ context }}</已知信息>\n"
-                "<问题>\n"
-                "{{ question }}\n"
-                "</问题>\n",
-            }
+    tool_config = get_tool_config("search_internet")
     return BaseToolOutput(search_engine(query=query, config=tool_config))

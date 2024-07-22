@@ -4,9 +4,10 @@
 import requests
 
 from ..pydantic_v1 import Field
-# from chatchat.server.utils import get_tool_config
 
 from .tools_registry import BaseToolOutput, regist_tool
+
+from app.utils import get_tool_config
 
 
 @regist_tool(title="天气查询")
@@ -15,10 +16,7 @@ def weather_check(
 ):
     """Use this tool to check the weather at a specific city"""
 
-    tool_config = {
-                "use": False,
-                "api_key": "SE7CGiRD5dvls08Ub",
-            }
+    tool_config = get_tool_config("weather_check")
     api_key = tool_config.get("api_key")
     url = f"https://api.seniverse.com/v3/weather/now.json?key={api_key}&location={city}&language=zh-Hans&unit=c"
     response = requests.get(url)

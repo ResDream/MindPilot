@@ -19,12 +19,9 @@ from .openai_routes import openai_request
 chat_router = APIRouter(prefix="/chat", tags=["MindPilot对话"])
 
 chat_router.post(
-    "/chat",
+    "/chat/online",
     summary="与llm模型对话",
 )(chat)
-
-# 定义全局model信息，用于给Text2Sql中的get_ChatOpenAI提供model_name
-global_model_name = None
 
 
 # @chat_router.post("/chat/completions", summary="兼容 openai 的统一 chat 接口")
