@@ -8,6 +8,7 @@ from contextlib import asynccontextmanager
 from multiprocessing import Process
 import argparse
 from fastapi import FastAPI
+from app.configs import HOST,PORT
 
 logger = logging.getLogger()
 
@@ -42,11 +43,7 @@ def run_api_server(
     app = create_app(run_mode=run_mode)
     _set_app_event(app, started_event)
 
-    # TODO 需要设计一个配置文件，修改为可以控制的端口号
-    host = "127.0.0.1"
-    port = 7861
-
-    uvicorn.run(app, host=host, port=port)
+    uvicorn.run(app, host=HOST, port=PORT)
 
 
 async def start_main_server():
