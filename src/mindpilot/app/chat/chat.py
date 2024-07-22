@@ -1,15 +1,12 @@
 import asyncio
 import json
-import time
 import uuid
 from typing import AsyncIterable, List
 
 from fastapi import Body
-from langchain.chains import LLMChain
-from langchain.prompts import PromptTemplate
+from langchain.schema.runnable import RunnableSequence
 from langchain.prompts.chat import ChatPromptTemplate
 from langchain_core.messages import AIMessage, HumanMessage, convert_to_messages
-from langchain_core.output_parsers import StrOutputParser
 from sse_starlette.sse import EventSourceResponse
 
 from ..agent.agents_registry import agents_registry
@@ -19,9 +16,6 @@ from ..callback_handler.agent_callback_handler import (
     AgentStatus,
 )
 from ..chat.utils import History
-# from chatchat.server.memory.conversation_db_buffer_memory import (
-#     ConversationBufferDBMemory,
-# )
 from ..utils import (
     MsgType,
     get_ChatOpenAI,
@@ -29,46 +23,11 @@ from ..utils import (
     get_tool,
     wrap_done,
 )
+from app.configs import MODEL_CONFIG,TOOL_CONFIG
 
 
 def create_models_from_config(configs, callbacks, stream):
-    configs = {
-            # 意图识别不需要输出，模型后台知道就行
-            "preprocess_model": {
-                "glm-4-0520": {
-                    "temperature": 0.05,
-                    "max_tokens": 4096,
-                    "history_len": 100,
-                    "prompt_name": "default",
-                    "callbacks": False,
-                },
-            },
-            "llm_model": {
-                "glm-4-0520": {
-                    "temperature": 0.9,
-                    "max_tokens": 4096,
-                    "history_len": 10,
-                    "prompt_name": "default",
-                    "callbacks": True,
-                },
-            },
-            "action_model": {
-                "glm-4-0520": {
-                    "temperature": 0.01,
-                    "max_tokens": 4096,
-                    "prompt_name": "default",
-                    "callbacks": True,
-                },
-            },
-            "postprocess_model": {
-                "glm-4-0520": {
-                    "temperature": 0.01,
-                    "max_tokens": 4096,
-                    "prompt_name": "default",
-                    "callbacks": True,
-                }
-            }
-    }
+    configs = configs or MODEL_CONFIG
     models = {}
     prompts = {}
     for model_type, model_configs in configs.items():
@@ -76,8 +35,8 @@ def create_models_from_config(configs, callbacks, stream):
             callbacks = callbacks if params.get("callbacks", False) else None
             model_instance = get_ChatOpenAI(
                 model_name=model_name,
-                temperature=params.get("temperature", 0.5),
-                max_tokens=params.get("max_tokens", 1000),
+                temperature=params.get("temperature", 0.8),
+                max_tokens=params.get("max_tokens", 5000),
                 callbacks=callbacks,
                 streaming=stream,
             )
@@ -89,9 +48,8 @@ def create_models_from_config(configs, callbacks, stream):
 
 
 def create_models_chains(
-    history, history_len, prompts, models, tools, callbacks, conversation_id, metadata
+    history, prompts, models, tools, callbacks, metadata
 ):
-    memory = None
     chat_prompt = None
 
     if history:
@@ -102,13 +60,6 @@ def create_models_chains(
         chat_prompt = ChatPromptTemplate.from_messages(
             [i.to_msg_template() for i in history] + [input_msg]
         )
-    elif conversation_id and history_len > 0:
-        # memory = ConversationBufferDBMemory(
-        #     conversation_id=conversation_id,
-        #     llm=models["llm_model"],
-        #     message_limit=history_len,
-        # )
-        pass
     else:
         input_msg = History(role="user", content=prompts["llm_model"]).to_msg_template(
             False
@@ -117,7 +68,6 @@ def create_models_chains(
 
     llm = models["llm_model"]
     llm.callbacks = callbacks
-    chain = LLMChain(prompt=chat_prompt, llm=llm, memory=memory)
 
     if "action_model" in models and tools is not None:
         agent_executor = agents_registry(
@@ -125,17 +75,18 @@ def create_models_chains(
         )
         full_chain = {"input": lambda x: x["input"]} | agent_executor
     else:
-        chain.llm.callbacks = callbacks
-        full_chain = {"input": lambda x: x["input"]} | chain
+        full_chain = RunnableSequence(
+            steps=[
+                {"input": lambda x: x["input"]},
+                chat_prompt | llm
+            ]
+        )
     return full_chain
 
 
 async def chat(
     query: str = Body(..., description="用户输入", examples=[""]),
     metadata: dict = Body({}, description="附件，可能是图像或者其他功能", examples=[]),
-    conversation_id: str = Body("", description="对话框ID"),
-    message_id: str = Body(None, description="数据库消息ID"),
-    history_len: int = Body(-1, description="从数据库中取历史消息的数量"),
     history: List[History] = Body(
         [],
         description="历史对话，设为一个整数可以从数据库中读取历史消息",
@@ -160,16 +111,15 @@ async def chat(
             callbacks=callbacks, configs=chat_model_config, stream=stream
         )
         all_tools = get_tool().values()
-        tools = [tool for tool in all_tools if tool.name in tool_config]
+        tool_configs = tool_config or TOOL_CONFIG
+        tools = [tool for tool in all_tools if tool.name in tool_configs]
         tools = [t.copy(update={"callbacks": callbacks}) for t in tools]
         full_chain = create_models_chains(
             prompts=prompts,
             models=models,
-            conversation_id=conversation_id,
             tools=tools,
             callbacks=callbacks,
             history=history,
-            history_len=history_len,
             metadata=metadata,
         )
 
@@ -239,7 +189,6 @@ async def chat(
                 model=models["llm_model"].model_name,
                 status=data["status"],
                 message_type=data["message_type"],
-                # message_id=message_id,
             )
             yield ret.model_dump_json()
 
@@ -257,7 +206,6 @@ async def chat(
             tool_calls=[],
             status=AgentStatus.agent_finish,
             message_type=MsgType.TEXT,
-            message_id=message_id,
         )
 
         async for chunk in chat_iterator():

@@ -2,8 +2,8 @@ from typing import Dict, List
 
 from langchain.docstore.document import Document
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.utilities.bing_search import BingSearchAPIWrapper
-from langchain.utilities.duckduckgo_search import DuckDuckGoSearchAPIWrapper
+from langchain_community.utilities import BingSearchAPIWrapper
+from langchain_community.utilities import DuckDuckGoSearchAPIWrapper
 from markdownify import markdownify
 from strsimpy.normalized_levenshtein import NormalizedLevenshtein
 
@@ -126,7 +126,7 @@ def search_internet(query: str = Field(description="query for Internet search"))
                         "result_len": 3,
                         "metaphor_api_key": "",
                         "split_result": False,
-                        "chunk_size": 500,
+                        "chunk_size": 5000,
                         "chunk_overlap": 0,
                     },
                     "duckduckgo": {"result_len": 3},

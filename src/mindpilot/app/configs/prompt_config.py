@@ -49,6 +49,7 @@ PROMPT_TEMPLATES = {
         "Begin! Reminder to always use the exact characters `Final Answer` when responding.\n"
         "Question:{input}\n"
         "Thought:{agent_scratchpad}\n",
+
         "ChatGLM3": "You can answer using the tools.Respond to the human as helpfully and accurately as possible.\n"
         "You have access to the following tools:\n"
         "{tools}\n"
@@ -82,6 +83,7 @@ PROMPT_TEMPLATES = {
         "Respond directly if appropriate. Format is Action:```$JSON_BLOB```then Observation:.\n"
         "Question: {input}\n\n"
         "{agent_scratchpad}\n",
+
         "qwen": "Answer the following questions as best you can. You have access to the following APIs:\n\n"
         "{tools}\n\n"
         "Use the following format:\n\n"

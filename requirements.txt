@@ -19,3 +19,5 @@ markdownify~=0.13.1
 strsimpy~=0.2.1
 metaphor_python==0.1.23
 langchainhub==0.1.20
+langchain-experimental==0.0.62
+arxiv==2.1.3
