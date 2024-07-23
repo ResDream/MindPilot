@@ -10,7 +10,7 @@ MODEL_CONFIG = {
             },
             "llm_model": {
                 "glm-4": {
-                    "temperature": 0.8,
+                    "temperature": 0.9,
                     "max_tokens": 4096,
                     "history_len": 10,
                     "prompt_name": "default",
@@ -21,7 +21,7 @@ MODEL_CONFIG = {
                 "glm-4": {
                     "temperature": 0.1,
                     "max_tokens": 4096,
-                    "prompt_name": "GPT-4",
+                    "prompt_name": "ChatGLM3",
                     "callbacks": True,
                 },
             },

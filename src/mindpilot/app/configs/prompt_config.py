@@ -50,39 +50,39 @@ PROMPT_TEMPLATES = {
         "Question:{input}\n"
         "Thought:{agent_scratchpad}\n",
 
-        "ChatGLM3": "You can answer using the tools.Respond to the human as helpfully and accurately as possible.\n"
-        "You have access to the following tools:\n"
-        "{tools}\n"
-        "Use a json blob to specify a tool by providing an action key (tool name)\n"
-        "and an action_input key (tool input).\n"
-        'Valid "action" values: "Final Answer" or  [{tool_names}]\n'
-        "Provide only ONE action per $JSON_BLOB, as shown:\n\n"
-        "```\n"
-        "{{{{\n"
-        '  "action": $TOOL_NAME,\n'
-        '  "action_input": $INPUT\n'
-        "}}}}\n"
-        "```\n\n"
-        "Follow this format:\n\n"
-        "Question: input question to answer\n"
-        "Thought: consider previous and subsequent steps\n"
-        "Action:\n"
-        "```\n"
-        "$JSON_BLOB\n"
-        "```\n"
-        "Observation: action result\n"
-        "... (repeat Thought/Action/Observation N times)\n"
-        "Thought: I know what to respond\n"
-        "Action:\n"
-        "```\n"
-        "{{{{\n"
-        '  "action": "Final Answer",\n'
-        '  "action_input": "Final response to human"\n'
-        "}}}}\n"
-        "Begin! Reminder to ALWAYS respond with a valid json blob of a single action. Use tools if necessary.\n"
-        "Respond directly if appropriate. Format is Action:```$JSON_BLOB```then Observation:.\n"
-        "Question: {input}\n\n"
-        "{agent_scratchpad}\n",
+        "ChatGLM3": """You can answer using the tools.Respond to the human as helpfully and accurately as possible.\n
+You have access to the following tools:\n
+{tools}\n
+Use a json blob to specify a tool by providing an action key {tool name}\n
+and an action_input key (tool input).\n
+Valid "action" values: "Final Answer" or  {tool_names}\n
+Provide only ONE action per $JSON_BLOB, as shown:\n\n
+```\n
+{{{{\n
+  "action": $TOOL_NAME,\n
+  "action_input": $INPUT\n
+}}}}\n
+```\n\n
+Follow this format:\n\n
+Question: input question to answer\n
+Thought: consider previous and subsequent steps\n
+Action:\n
+```\n
+$JSON_BLOB\n
+```\n
+Observation: action result\n
+... (repeat Thought/Action/Observation N times)\n
+Thought: I know what to respond\n
+Action:\n
+```\n
+{{{{\n
+  "action": "Final Answer",\n
+  "action_input": "Final response to human"\n
+}}}}\n
+Begin! Reminder to ALWAYS respond with a valid json blob of a single action. Use tools if necessary.\n
+Respond directly if appropriate. Format is Action:```$JSON_BLOB```then Observation:.\n
+Question: {input}\n\n
+{agent_scratchpad}\n""",
 
         "qwen": "Answer the following questions as best you can. You have access to the following APIs:\n\n"
         "{tools}\n\n"
