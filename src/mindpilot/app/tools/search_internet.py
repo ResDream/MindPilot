@@ -98,6 +98,7 @@ def search_engine(query: str, config: dict):
     results = search_engine_use(
         text=query, config=config["search_engine_config"][config["search_engine_name"]]
     )
+    print(results)
     docs = search_result2docs(results)
     context = ""
     docs = [
