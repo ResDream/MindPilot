@@ -4,7 +4,7 @@ import uuid
 from typing import AsyncIterable, List
 
 from fastapi import Body
-from langchain.schema.runnable import RunnableSequence
+from langchain.chains import LLMChain
 from langchain.prompts.chat import ChatPromptTemplate
 from langchain_core.messages import AIMessage, HumanMessage, convert_to_messages
 from sse_starlette.sse import EventSourceResponse
@@ -48,7 +48,7 @@ def create_models_from_config(configs, callbacks, stream):
 
 
 def create_models_chains(
-    history, prompts, models, tools, callbacks, metadata
+    history, prompts, models, tools, callbacks, metadata, agent_enable
 ):
     chat_prompt = None
 
@@ -65,22 +65,20 @@ def create_models_chains(
             False
         )
         chat_prompt = ChatPromptTemplate.from_messages([input_msg])
+    print(chat_prompt)
 
     llm = models["llm_model"]
     llm.callbacks = callbacks
+    chain = LLMChain(prompt=chat_prompt, llm=llm)
 
-    if "action_model" in models and tools is not None:
+    if agent_enable:
         agent_executor = agents_registry(
             llm=llm, callbacks=callbacks, tools=tools, prompt=None, verbose=True
         )
         full_chain = {"input": lambda x: x["input"]} | agent_executor
     else:
-        full_chain = RunnableSequence(
-            steps=[
-                {"input": lambda x: x["input"]},
-                chat_prompt | llm
-            ]
-        )
+        chain.llm.callbacks = callbacks
+        full_chain = {"input": lambda x: x["input"]} | chain
     return full_chain
 
 
@@ -99,7 +97,8 @@ async def chat(
     ),
     stream: bool = Body(True, description="流式输出"),
     chat_model_config: dict = Body({}, description="LLM 模型配置", examples=[]),
-    tool_config: List[str] = Body([], description="工具配置", examples=["weather_check"]),
+    tool_config: List[str] = Body([], description="工具配置", examples=[]),
+    agent_enable: bool = Body(True, description="是否启用Agent")
 ):
     """Agent 对话"""
 
@@ -121,6 +120,7 @@ async def chat(
             callbacks=callbacks,
             history=history,
             metadata=metadata,
+            agent_enable=agent_enable
         )
 
         _history = [History.from_data(h) for h in history]
