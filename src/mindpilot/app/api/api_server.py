@@ -34,11 +34,4 @@ def create_app(run_mode: str = None):
     # app.include_router(openai_router)
     # app.include_router(server_router)
 
-    # # 其它接口
-    # app.post(
-    #     "/other/completion",
-    #     tags=["Other"],
-    #     summary="要求llm模型补全(通过LLMChain)",
-    # )(completion)
-
     return app

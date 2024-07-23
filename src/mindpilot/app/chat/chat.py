@@ -141,6 +141,7 @@ async def chat(
         last_tool = {}
         async for chunk in callback.aiter():
             data = json.loads(chunk)
+            # print("data:{}".format(data))
             data["tool_calls"] = []
             data["message_type"] = MsgType.TEXT
 
