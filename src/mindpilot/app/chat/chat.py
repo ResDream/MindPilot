@@ -87,7 +87,7 @@ async def chat(
     metadata: dict = Body({}, description="附件，可能是图像或者其他功能", examples=[]),
     history: List[History] = Body(
         [],
-        description="历史对话，设为一个整数可以从数据库中读取历史消息",
+        description="历史对话",
         examples=[
             [
                 {"role": "user", "content": "你好"},
