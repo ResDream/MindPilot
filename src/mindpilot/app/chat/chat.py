@@ -48,7 +48,7 @@ def create_models_from_config(configs, callbacks, stream):
 
 
 def create_models_chains(
-    history, prompts, models, tools, callbacks, metadata, agent_enable
+    history, prompts, models, tools, callbacks, agent_enable
 ):
     chat_prompt = None
 
@@ -84,7 +84,6 @@ def create_models_chains(
 
 async def chat(
     query: str = Body(..., description="用户输入", examples=[""]),
-    metadata: dict = Body({}, description="附件，可能是图像或者其他功能", examples=[]),
     history: List[History] = Body(
         [],
         description="历史对话",
@@ -119,7 +118,6 @@ async def chat(
             tools=tools,
             callbacks=callbacks,
             history=history,
-            metadata=metadata,
             agent_enable=agent_enable
         )
 
