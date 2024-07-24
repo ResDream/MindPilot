@@ -148,7 +148,7 @@ def get_prompt_template(type: str, name: str) -> Optional[str]:
     type: "llm_chat","knowledge_base_chat","search_engine_chat"的其中一种，如果有新功能，应该进行加入。
     """
 
-    from .configs.prompt_config import PROMPT_TEMPLATES
+    from src.mindpilot.app.configs import PROMPT_TEMPLATES
 
     return PROMPT_TEMPLATES.get(type, {}).get(name)
 
@@ -156,12 +156,11 @@ def get_prompt_template(type: str, name: str) -> Optional[str]:
 def get_tool(name: str = None) -> Union[BaseTool, Dict[str, BaseTool]]:
     import importlib
 
-    from app import tools
+    from src.mindpilot.app import tools
 
     importlib.reload(tools)
 
-    from app.tools import tools_registry
-
+    from src.mindpilot.app.tools import tools_registry
 
     if name is None:
         return tools_registry._TOOLS_REGISTRY
@@ -183,10 +182,11 @@ async def wrap_done(fn: Awaitable, event: asyncio.Event):
         # Signal the aiter to stop.
         event.set()
 
+
 def get_OpenAIClient(
-    platform_name: str = None,
-    model_name: str = None,
-    is_async: bool = True,
+        platform_name: str = None,
+        model_name: str = None,
+        is_async: bool = True,
 ) -> Union[openai.Client, openai.AsyncClient]:
     # """
     # construct an openai Client for specified platform or model
@@ -204,7 +204,7 @@ def get_OpenAIClient(
     # assert platform_info, f"cannot find configured platform: {platform_name}"
     # TODO 配置文件
     params = {
-        "base_url":"https://open.bigmodel.cn/api/paas/v4/",
+        "base_url": "https://open.bigmodel.cn/api/paas/v4/",
         "api_key": "8424573178d3681bb2e9bfbc5af24dd5.BKKxdk1d6zzgvfnV"
     }
     httpx_params = {}
@@ -223,9 +223,9 @@ def get_OpenAIClient(
             params["http_client"] = httpx.Client(**httpx_params)
         return openai.Client(**params)
 
-def get_tool_config(name: str = None) -> Dict:
 
-    from app.configs import TOOL_CONFIG
+def get_tool_config(name: str = None) -> Dict:
+    from src.mindpilot.app.configs import TOOL_CONFIG
 
     if name is None:
         return TOOL_CONFIG
