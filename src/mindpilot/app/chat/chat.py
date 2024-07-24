@@ -16,14 +16,8 @@ from ..callback_handler.agent_callback_handler import (
     AgentStatus,
 )
 from ..chat.utils import History
-from ..utils import (
-    MsgType,
-    get_ChatOpenAI,
-    get_prompt_template,
-    get_tool,
-    wrap_done,
-)
-from app.configs import MODEL_CONFIG,TOOL_CONFIG
+from ..configs import MODEL_CONFIG, TOOL_CONFIG
+from ..utils.openai_utils import get_ChatOpenAI, get_prompt_template, get_tool, wrap_done, MsgType
 
 
 def create_models_from_config(configs, callbacks, stream):
