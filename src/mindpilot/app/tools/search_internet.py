@@ -6,12 +6,13 @@ from langchain_community.utilities import BingSearchAPIWrapper
 from langchain_community.utilities import DuckDuckGoSearchAPIWrapper
 from markdownify import markdownify
 from strsimpy.normalized_levenshtein import NormalizedLevenshtein
-from app.utils import get_tool_config
+
 
 from ..pydantic_v1 import Field
 # from chatchat.server.utils import get_tool_config
 
 from .tools_registry import BaseToolOutput, regist_tool
+from ..utils.openai_utils import get_tool_config
 
 
 def bing_search(text, config):
