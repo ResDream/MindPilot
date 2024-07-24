@@ -17,7 +17,7 @@ from openai.types.file_object import FileObject
 from sse_starlette.sse import EventSourceResponse
 
 # from chatchat.configs import BASE_TEMP_DIR, log_verbose
-from ..utils import get_OpenAIClient
+
 
 from .api_schemas import *
 
