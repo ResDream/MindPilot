@@ -8,7 +8,8 @@ from contextlib import asynccontextmanager
 from multiprocessing import Process
 import argparse
 from fastapi import FastAPI
-from app.configs import HOST,PORT
+from app.configs import HOST, PORT
+from src.mindpilot.app.tools.colorful import print亮蓝
 
 logger = logging.getLogger()
 
@@ -115,7 +116,8 @@ def main():
     cwd = os.getcwd()
     sys.path.append(cwd)
     multiprocessing.freeze_support()
-    print("cwd:" + cwd)
+    print亮蓝(f"当前工作目录：{cwd}")
+    print亮蓝(f"OpenAPI 文档：http://{HOST}:{PORT}/docs")
 
     if sys.version_info < (3, 10):
         loop = asyncio.get_event_loop()
