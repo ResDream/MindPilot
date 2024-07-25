@@ -24,31 +24,44 @@ PROMPT_TEMPLATES = {
         "rag_default": "{{question}}",
     },
     "action_model": {
-        "GPT-4": "Answer the following questions as best you can. You have access to the following tools:\n"
-        "The way you use the tools is by specifying a json blob.\n"
-        "Specifically, this json should have a `action` key (with the name of the tool to use) and a `action_input` key (with the input to the tool going here).\n"
-        'The only values that should be in the "action" field are: {tool_names}\n'
-        "The $JSON_BLOB should only contain a SINGLE action, do NOT return a list of multiple actions. Here is an example of a valid $JSON_BLOB:\n"
-        "```\n\n"
-        "{{{{\n"
-        '  "action": $TOOL_NAME,\n'
-        '  "action_input": $INPUT\n'
-        "}}}}\n"
-        "```\n\n"
-        "ALWAYS use the following format:\n"
-        "Question: the input question you must answer\n"
-        "Thought: you should always think about what to do\n"
-        "Action:\n"
-        "```\n\n"
-        "$JSON_BLOB"
-        "```\n\n"
-        "Observation: the result of the action\n"
-        "... (this Thought/Action/Observation can repeat N times)\n"
-        "Thought: I now know the final answer\n"
-        "Final Answer: the final answer to the original input question\n"
-        "Begin! Reminder to always use the exact characters `Final Answer` when responding.\n"
-        "Question:{input}\n"
-        "Thought:{agent_scratchpad}\n",
+        "GPT-4": '''Respond to the human as helpfully and accurately as possible. You have access to the following tools:
+
+{tools}
+
+Use a JSON blob to specify a tool by providing an action key (tool name) and an action_input key (tool input).
+
+Valid "action" values: "Final Answer" or {tool_names}
+
+Provide only ONE action per $JSON_BLOB, as shown:
+
+```
+{{
+  "action": $TOOL_NAME,
+  "action_input": $INPUT
+}}
+```
+
+Please strictly follow format below:
+
+Question: input question to answer
+Thought: consider previous and subsequent steps
+Action:
+```
+$JSON_BLOB
+```
+Observation: action result
+... (repeat Thought/Action/Observation N times)
+Thought: I know what to respond
+Action:
+```
+{{
+  "action": "Final Answer",
+  "action_input": "Final response to human"
+}}
+```
+
+Begin! Reminder to ALWAYS respond with a valid JSON blob of a single action. Use tools if necessary. Try to reply in Chinese as much as possible.Don't forget the Question, Thought, and Observation sections.Please provide as much output content as possible for the Final Answer.
+''',
 
         "ChatGLM3": """You can answer using the tools.Respond to the human as helpfully and accurately as possible.\n
 You have access to the following tools:\n

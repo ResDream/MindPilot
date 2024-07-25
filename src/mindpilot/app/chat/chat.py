@@ -102,7 +102,6 @@ async def chat(
             callbacks=callbacks, configs=chat_model_config, stream=stream
         )
         all_tools = get_tool().values()
-        print(all_tools)
         tool_configs = tool_config or TOOL_CONFIG
         tools = [tool for tool in all_tools if tool.name in tool_configs]
         tools = [t.copy(update={"callbacks": callbacks}) for t in tools]
