@@ -49,9 +49,6 @@ TOOL_CONFIG = {
             "use": False,
             "api_key": "SE7CGiRD5dvls08Ub",
         },
-        # "search_youtube": {
-        #     "use": False,
-        # },
         "wolfram": {
             "use": False,
             "appid": "PWKVLW-6ETR93QX6Q",
@@ -59,19 +56,4 @@ TOOL_CONFIG = {
         "calculate": {
             "use": False,
         },
-        # "vqa_processor": {
-        #     "use": False,
-        #     "model_path": "your model path",
-        #     "tokenizer_path": "your tokenizer path",
-        #     "device": "cuda:1",
-        # },
-        # "aqa_processor": {
-        #     "use": False,
-        #     "model_path": "your model path",
-        #     "tokenizer_path": "yout tokenizer path",
-        #     "device": "cuda:2",
-        # },
-        # "text2images": {
-        #     "use": False,
-        # },
     }
