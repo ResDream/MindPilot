@@ -12,7 +12,7 @@ from ..pydantic_v1 import Field
 # from chatchat.server.utils import get_tool_config
 
 from .tools_registry import BaseToolOutput, regist_tool
-from ..utils.openai_utils import get_tool_config
+from ..utils.system_utils import get_tool_config
 
 
 def bing_search(text, config):

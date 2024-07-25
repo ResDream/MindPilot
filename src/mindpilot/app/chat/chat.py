@@ -17,7 +17,7 @@ from ..callback_handler.agent_callback_handler import (
 )
 from ..chat.utils import History
 from ..configs import MODEL_CONFIG, TOOL_CONFIG
-from ..utils.openai_utils import get_ChatOpenAI, get_prompt_template, get_tool, wrap_done, MsgType
+from ..utils.system_utils import get_ChatOpenAI, get_prompt_template, get_tool, wrap_done, MsgType
 
 
 def create_models_from_config(configs, callbacks, stream):
@@ -102,6 +102,7 @@ async def chat(
             callbacks=callbacks, configs=chat_model_config, stream=stream
         )
         all_tools = get_tool().values()
+        print(all_tools)
         tool_configs = tool_config or TOOL_CONFIG
         tools = [tool for tool in all_tools if tool.name in tool_configs]
         tools = [t.copy(update={"callbacks": callbacks}) for t in tools]

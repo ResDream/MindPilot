@@ -39,7 +39,7 @@ def run_api_server(
 ):
     import uvicorn
     from app.api.api_server import create_app
-    from src.mindpilot.app.utils.openai_utils import set_httpx_config
+    from src.mindpilot.app.utils.system_utils import set_httpx_config
 
     set_httpx_config()
     app = create_app(run_mode=run_mode)

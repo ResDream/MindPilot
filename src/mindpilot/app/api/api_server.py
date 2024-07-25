@@ -1,18 +1,9 @@
-import argparse
-import os
-from typing import Literal
-
-import uvicorn
 from fastapi import Body, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
 from starlette.responses import RedirectResponse
 
 from .chat_routes import chat_router
-# from .openai_routes import openai_router
-# from .server_routes import server_router
-# from .tool_routes import tool_router
-# from chatchat.server.chat.completion import completion
+from .tool_routes import tool_router
 
 
 def create_app(run_mode: str = None):
@@ -30,8 +21,6 @@ def create_app(run_mode: str = None):
         return RedirectResponse(url="/docs")
 
     app.include_router(chat_router)
-    # app.include_router(tool_router)
-    # app.include_router(openai_router)
-    # app.include_router(server_router)
+    app.include_router(tool_router)
 
     return app
