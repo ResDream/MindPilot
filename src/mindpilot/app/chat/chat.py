@@ -59,7 +59,6 @@ def create_models_chains(
             False
         )
         chat_prompt = ChatPromptTemplate.from_messages([input_msg])
-    print(chat_prompt)
 
     llm = models["llm_model"]
     llm.callbacks = callbacks
