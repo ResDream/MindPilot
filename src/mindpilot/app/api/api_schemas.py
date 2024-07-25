@@ -14,8 +14,6 @@ from openai.types.chat import (
 
 from ..utils.system_utils import MsgType
 
-# from chatchat.configs import DEFAULT_LLM_MODEL, TEMPERATURE
-DEFAULT_LLM_MODEL = None  # TODO 配置文件
 TEMPERATURE = 0.8
 from ..pydantic_v2 import AnyUrl, BaseModel, Field
 
@@ -35,7 +33,7 @@ class OpenAIBaseInput(BaseModel):
 
 class OpenAIChatInput(OpenAIBaseInput):
     messages: List[ChatCompletionMessageParam]
-    model: str = DEFAULT_LLM_MODEL
+    model: str = None
     frequency_penalty: Optional[float] = None
     function_call: Optional[completion_create_params.FunctionCall] = None
     functions: List[completion_create_params.Function] = None
