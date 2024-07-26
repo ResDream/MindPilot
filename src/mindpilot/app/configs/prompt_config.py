@@ -1,5 +1,3 @@
-# 除 Agent 模板使用 f-string 外，其它均使用 jinja2 格式
-
 PROMPT_TEMPLATES = {
     "preprocess_model": {
         "default": "你只要回复0 和 1 ，代表不需要使用工具。以下几种问题不需要使用工具:"
@@ -23,8 +21,8 @@ PROMPT_TEMPLATES = {
         "【问题】{{question}}\n",
         "rag_default": "{{question}}",
     },
-    "action_model": {
-        "GPT-4": '''Respond to the human as helpfully and accurately as possible. You have access to the following tools:
+    "agent_prompt": {
+        "default": '''Respond to the human as helpfully and accurately as possible. You have access to the following tools:
 
 {tools}
 
@@ -63,7 +61,7 @@ Action:
 Begin! Reminder to ALWAYS respond with a valid JSON blob of a single action. Use tools if necessary. Try to reply in Chinese as much as possible.Don't forget the Question, Thought, and Observation sections.Please provide as much output content as possible for the Final Answer.
 ''',
 
-        "ChatGLM3": """You can answer using the tools.Respond to the human as helpfully and accurately as possible.\n
+        "ChatGLM": """You can answer using the tools.Respond to the human as helpfully and accurately as possible.\n
 You have access to the following tools:\n
 {tools}\n
 Use a json blob to specify a tool by providing an action key {tool name}\n
@@ -96,40 +94,6 @@ Begin! Reminder to ALWAYS respond with a valid json blob of a single action. Use
 Respond directly if appropriate. Format is Action:```$JSON_BLOB```then Observation:.\n
 Question: {input}\n\n
 {agent_scratchpad}\n""",
-
-        "qwen": "Answer the following questions as best you can. You have access to the following APIs:\n\n"
-        "{tools}\n\n"
-        "Use the following format:\n\n"
-        "Question: the input question you must answer\n"
-        "Thought: you should always think about what to do\n"
-        "Action: the action to take, should be one of [{tool_names}]\n"
-        "Action Input: the input to the action\n"
-        "Observation: the result of the action\n"
-        "... (this Thought/Action/Action Input/Observation can be repeated zero or more times)\n"
-        "Thought: I now know the final answer\n"
-        "Final Answer: the final answer to the original input question\n\n"
-        "Format the Action Input as a JSON object.\n\n"
-        "Begin!\n\n"
-        "Question: {input}\n\n"
-        "{agent_scratchpad}\n\n",
-        "structured-chat-agent": "Respond to the human as helpfully and accurately as possible. You have access to the following tools:\n\n"
-        "{tools}\n\n"
-        "Use a json blob to specify a tool by providing an action key (tool name) and an action_input key (tool input).\n\n"
-        'Valid "action" values: "Final Answer" or {tool_names}\n\n'
-        "Provide only ONE action per $JSON_BLOB, as shown:\n\n"
-        '```\n{{\n  "action": $TOOL_NAME,\n  "action_input": $INPUT\n}}\n```\n\n'
-        "Follow this format:\n\n"
-        "Question: input question to answer\n"
-        "Thought: consider previous and subsequent steps\n"
-        "Action:\n```\n$JSON_BLOB\n```\n"
-        "Observation: action result\n"
-        "... (repeat Thought/Action/Observation N times)\n"
-        "Thought: I know what to respond\n"
-        'Action:\n```\n{{\n  "action": "Final Answer",\n  "action_input": "Final response to human"\n}}\n\n'
-        "Begin! Reminder to ALWAYS respond with a valid json blob of a single action. Use tools if necessary. Respond directly if appropriate. Format is Action:```$JSON_BLOB```then Observation\n"
-        "{input}\n\n"
-        "{agent_scratchpad}\n\n",
-        # '(reminder to respond in a JSON blob no matter what)'
     },
     "postprocess_model": {
         "default": "{{input}}",
