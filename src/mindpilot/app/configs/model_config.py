@@ -10,7 +10,7 @@ MODEL_CONFIG = {
             },
             "llm_model": {
                 "glm-4": {
-                    "temperature": 0.9,
+                    "temperature": 0.8,
                     "max_tokens": 4096,
                     "history_len": 10,
                     "prompt_name": "default",
