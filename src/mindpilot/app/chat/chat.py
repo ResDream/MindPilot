@@ -164,13 +164,13 @@ async def chat(
                         data["message_type"] = message_type
                 except:
                     ...
-            elif data["status"] == AgentStatus.agent_finish:
-                try:
-                    tool_output = json.loads(data["text"])
-                    if message_type := tool_output.get("message_type"):
-                        data["message_type"] = message_type
-                except:
-                    ...
+            # elif data["status"] == AgentStatus.agent_finish:
+            #     try:
+            #         tool_output = json.loads(data["text"])
+            #         if message_type := tool_output.get("message_type"):
+            #             data["message_type"] = message_type
+            #     except:
+            #         ...
 
             ret = OpenAIChatOutput(
                 id=f"chat{uuid.uuid4()}",
