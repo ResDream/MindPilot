@@ -144,3 +144,9 @@ class BaseToolOutput:
             return json.dumps(self.data, ensure_ascii=False, indent=2)
         else:
             return str(self.data)
+
+    def to_serializable_data(self):
+        if self.format == "json":
+            return self.data
+        else:
+            return str(self.data)
