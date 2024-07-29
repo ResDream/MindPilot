@@ -81,12 +81,11 @@ class AgentExecutorAsyncIteratorCallbackHandler(AsyncIteratorCallbackHandler):
         self.queue.put_nowait(dumps(data))
 
     async def on_llm_end(self, response: LLMResult, **kwargs: Any) -> None:
-        pass
-        # data = {
-        #     "status": AgentStatus.llm_end,
-        #     "text": response.generations[0][0].message.content,
-        # }
-        # self.queue.put_nowait(dumps(data))
+        data = {
+            "status": AgentStatus.llm_end,
+            "text": response.generations[0][0].message.content,
+        }
+        self.queue.put_nowait(dumps(data))
 
     async def on_llm_error(
             self, error: Exception | KeyboardInterrupt, **kwargs: Any
@@ -153,42 +152,42 @@ class AgentExecutorAsyncIteratorCallbackHandler(AsyncIteratorCallbackHandler):
         # self.done.clear()
         self.queue.put_nowait(dumps(data))
 
-    # async def on_agent_action(
-    #         self,
-    #         action: AgentAction,
-    #         *,
-    #         run_id: UUID,
-    #         parent_run_id: Optional[UUID] = None,
-    #         tags: Optional[List[str]] = None,
-    #         **kwargs: Any,
-    # ) -> None:
-    #     data = {
-    #         "status": AgentStatus.agent_action,
-    #         "tool_name": action.tool,
-    #         "tool_input": action.tool_input,
-    #         "text": action.log,
-    #     }
-    #     self.queue.put_nowait(dumps(data))
+    async def on_agent_action(
+            self,
+            action: AgentAction,
+            *,
+            run_id: UUID,
+            parent_run_id: Optional[UUID] = None,
+            tags: Optional[List[str]] = None,
+            **kwargs: Any,
+    ) -> None:
+        data = {
+            "status": AgentStatus.agent_action,
+            "tool_name": action.tool,
+            "tool_input": action.tool_input,
+            "text": action.log,
+        }
+        self.queue.put_nowait(dumps(data))
 
-    # async def on_agent_finish(
-    #         self,
-    #         finish: AgentFinish,
-    #         *,
-    #         run_id: UUID,
-    #         parent_run_id: Optional[UUID] = None,
-    #         tags: Optional[List[str]] = None,
-    #         **kwargs: Any,
-    # ) -> None:
-    #     if "Thought:" in finish.return_values["output"]:
-    #         finish.return_values["output"] = finish.return_values["output"].replace(
-    #             "Thought:", ""
-    #         )
-    #
-    #     data = {
-    #         "status": AgentStatus.agent_finish,
-    #         "text": finish.return_values["output"],
-    #     }
-    #     self.queue.put_nowait(dumps(data))
+    async def on_agent_finish(
+            self,
+            finish: AgentFinish,
+            *,
+            run_id: UUID,
+            parent_run_id: Optional[UUID] = None,
+            tags: Optional[List[str]] = None,
+            **kwargs: Any,
+    ) -> None:
+        if "Thought:" in finish.return_values["output"]:
+            finish.return_values["output"] = finish.return_values["output"].replace(
+                "Thought:", ""
+            )
+
+        data = {
+            "status": AgentStatus.agent_finish,
+            "text": finish.return_values["output"],
+        }
+        self.queue.put_nowait(dumps(data))
 
     async def on_chain_end(
             self,
