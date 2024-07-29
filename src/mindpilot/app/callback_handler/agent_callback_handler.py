@@ -81,11 +81,12 @@ class AgentExecutorAsyncIteratorCallbackHandler(AsyncIteratorCallbackHandler):
         self.queue.put_nowait(dumps(data))
 
     async def on_llm_end(self, response: LLMResult, **kwargs: Any) -> None:
-        data = {
-            "status": AgentStatus.llm_end,
-            "text": response.generations[0][0].message.content,
-        }
-        self.queue.put_nowait(dumps(data))
+        pass
+        # data = {
+        #     "status": AgentStatus.llm_end,
+        #     "text": response.generations[0][0].message.content,
+        # }
+        # self.queue.put_nowait(dumps(data))
 
     async def on_llm_error(
             self, error: Exception | KeyboardInterrupt, **kwargs: Any
