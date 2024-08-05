@@ -68,7 +68,8 @@ def create_models_chains(
         agent_executor = agents_registry(
             llm=llm, callbacks=callbacks, tools=tools, prompt=None, verbose=True
         )
-        full_chain = {"input": lambda x: x["input"]} | agent_executor
+        # full_chain = {"input": lambda x: x["input"]} | agent_executor
+        full_chain = {"input": lambda x: x["input"], "chat_history": lambda x: x["chat_history"]} | agent_executor
     else:
         chain.llm.callbacks = callbacks
         full_chain = {"input": lambda x: x["input"]} | chain
@@ -118,6 +119,7 @@ async def chat(
         chat_history = [h.to_msg_tuple() for h in _history]
 
         history_message = convert_to_messages(chat_history)
+        # print(history_message)
 
         task = asyncio.create_task(
             wrap_done(
