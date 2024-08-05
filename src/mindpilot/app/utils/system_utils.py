@@ -129,9 +129,12 @@ def get_ChatOpenAI(
     try:
         # TODO 配置文件
         params.update(
-            openai_api_base="https://open.bigmodel.cn/api/paas/v4/",
-            openai_api_key="8424573178d3681bb2e9bfbc5af24dd5.BKKxdk1d6zzgvfnV",
+            # openai_api_base="https://open.bigmodel.cn/api/paas/v4/",
+            # openai_api_key="8424573178d3681bb2e9bfbc5af24dd5.BKKxdk1d6zzgvfnV",
+            openai_api_base="https://api.chatanywhere.tech/v1/",
+            openai_api_key="sk-cERDW9Fr2ujq8D2qYck9cpc9MtPytN26466bunfYXZVZWV7Y",
             openai_proxy="",
+
         )
         model = ChatOpenAI(**params)
     except Exception as e:
@@ -204,8 +207,10 @@ def get_OpenAIClient(
     # assert platform_info, f"cannot find configured platform: {platform_name}"
     # TODO 配置文件
     params = {
-        "base_url": "https://open.bigmodel.cn/api/paas/v4/",
-        "api_key": "8424573178d3681bb2e9bfbc5af24dd5.BKKxdk1d6zzgvfnV"
+        # "base_url": "https://open.bigmodel.cn/api/paas/v4/",
+        # "api_key": "8424573178d3681bb2e9bfbc5af24dd5.BKKxdk1d6zzgvfnV"
+        "base_url": "https://api.chatanywhere.tech/v1/",
+        "api_key": "sk-cERDW9Fr2ujq8D2qYck9cpc9MtPytN26466bunfYXZVZWV7Y"
     }
     httpx_params = {}
     # if api_proxy := platform_info.get("api_proxy"):
