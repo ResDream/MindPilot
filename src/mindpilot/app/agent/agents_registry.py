@@ -62,11 +62,13 @@ Action:
 ```
 {{
   "action": "Final Answer",
-  "action_input": "Final response to human"
+  "action_input": "Summarize all the information obtained earlier and provide a comprehensive final response to human. Please provide sufficient content in this section."
 }}
 ```
 
-Begin! Reminder to ALWAYS respond with a valid JSON blob of a single action. Use tools if necessary. Try to reply in Chinese as much as possible.Don't forget the Question, Thought, and Observation sections.Please provide as much output content as possible for the Final Answer.
+Begin! Reminder to ALWAYS respond with a valid JSON blob of a single action. Use tools if necessary. Try to reply in Chinese as much as possible.
+Don't forget the Question, Thought, and Observation sections.You MUST strictly follow the above process to output, first output the Question section, then repeat the Thought section, Action section, Observation section N times until you receive the Final Answer.
+Please provide as much output content as possible for the Final Answer.
 ''',
                 )
             ),

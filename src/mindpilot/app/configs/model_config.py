@@ -9,9 +9,16 @@ MODEL_CONFIG = {
                 },
             },
             "llm_model": {
-                "glm-4": {
+                # "glm-4": {
+                #     "temperature": 0.8,
+                #     "max_tokens": 4096,
+                #     "history_len": 10,
+                #     "prompt_name": "default",
+                #     "callbacks": True,
+                # },
+                "gpt-4o-mini": {
                     "temperature": 0.8,
-                    "max_tokens": 4096,
+                    "max_tokens": 8192,
                     "history_len": 10,
                     "prompt_name": "default",
                     "callbacks": True,
