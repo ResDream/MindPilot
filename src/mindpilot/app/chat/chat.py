@@ -16,29 +16,41 @@ from ..callback_handler.agent_callback_handler import (
     AgentStatus,
 )
 from ..chat.utils import History
-from ..configs import MODEL_CONFIG, TOOL_CONFIG
-from ..utils.system_utils import get_ChatOpenAI, get_prompt_template, get_tool, wrap_done, MsgType
+from ..configs import MODEL_CONFIG, TOOL_CONFIG, OPENAI_PROMPT
+from ..utils.system_utils import get_ChatOpenAI, get_tool, wrap_done, MsgType
 
 
 def create_models_from_config(configs, callbacks, stream):
-    configs = configs or MODEL_CONFIG
-    models = {}
-    prompts = {}
-    for model_type, model_configs in configs.items():
-        for model_name, params in model_configs.items():
-            callbacks = callbacks if params.get("callbacks", False) else None
-            model_instance = get_ChatOpenAI(
-                model_name=model_name,
-                temperature=params.get("temperature", 0.8),
-                max_tokens=params.get("max_tokens", 5000),
-                callbacks=callbacks,
-                streaming=stream,
-            )
-            models[model_type] = model_instance
-            prompt_name = params.get("prompt_name", "default")
-            prompt_template = get_prompt_template(type=model_type, name=prompt_name)
-            prompts[model_type] = prompt_template
-    return models, prompts
+    configs = configs
+
+    platform = configs["platform"]
+    base_url = configs["base_url"]
+    api_key = configs["api_key"]
+    is_openai = configs["is_openai"]
+    llm_model = configs["llm_model"]
+
+    model_name, params = next(iter(llm_model.items()))
+    callbacks = callbacks if params.get("callbacks", False) else None
+
+    if is_openai:
+        model_instance = get_ChatOpenAI(
+            model_name=model_name,
+            base_url=base_url,
+            api_key=api_key,
+            temperature=params.get("temperature", 0.8),
+            max_tokens=params.get("max_tokens", 4096),
+            callbacks=callbacks,
+            streaming=stream,
+        )
+        model = model_instance
+        prompt = OPENAI_PROMPT
+    else:
+        #TODO 其他不兼容OPENAI API格式的平台
+        pass
+
+    return model, prompt
+
+
 
 
 def create_models_chains(
@@ -48,25 +60,19 @@ def create_models_chains(
 
     if history:
         history = [History.from_data(h) for h in history]
-        input_msg = History(role="user", content=prompts["llm_model"]).to_msg_template(
-            False
-        )
         chat_prompt = ChatPromptTemplate.from_messages(
-            [i.to_msg_template() for i in history] + [input_msg]
+            [i.to_msg_template() for i in history]
         )
     else:
-        input_msg = History(role="user", content=prompts["llm_model"]).to_msg_template(
-            False
-        )
-        chat_prompt = ChatPromptTemplate.from_messages([input_msg])
+        chat_prompt = None
 
-    llm = models["llm_model"]
+    llm = models
     llm.callbacks = callbacks
     chain = LLMChain(prompt=chat_prompt, llm=llm)
 
     if agent_enable:
         agent_executor = agents_registry(
-            llm=llm, callbacks=callbacks, tools=tools, prompt=None, verbose=True
+            llm=llm, callbacks=callbacks, tools=tools, prompt=prompts, verbose=True
         )
         # full_chain = {"input": lambda x: x["input"]} | agent_executor
         full_chain = {"input": lambda x: x["input"], "chat_history": lambda x: x["chat_history"]} | agent_executor
@@ -89,7 +95,21 @@ async def chat(
         ],
     ),
     stream: bool = Body(True, description="流式输出"),
-    chat_model_config: dict = Body({}, description="LLM 模型配置", examples=[]),
+    chat_model_config: dict = Body({}, description="LLM 模型配置", examples=[{
+                "platform": "OpenAI",
+                "is_openai": True,
+                "base_url": "https://api.chatanywhere.tech/v1/",
+                "api_key": "sk-cERDW9Fr2ujq8D2qYck9cpc9MtPytN26466bunfYXZVZWV7Y",
+                "llm_model": {
+                    "gpt-4o-mini": {
+                        "temperature": 0.8,
+                        "max_tokens": 8192,
+                        "history_len": 10,
+                        "prompt_name": "default",
+                        "callbacks": True,
+                    },
+                }
+            }]),
     tool_config: List[str] = Body([], description="工具配置", examples=[]),
     agent_enable: bool = Body(True, description="是否启用Agent")
 ):
@@ -99,7 +119,7 @@ async def chat(
         callback = AgentExecutorAsyncIteratorCallbackHandler()
         callbacks = [callback]
 
-        models, prompts = create_models_from_config(
+        model, prompt = create_models_from_config(
             callbacks=callbacks, configs=chat_model_config, stream=stream
         )
         all_tools = get_tool().values()
@@ -107,8 +127,8 @@ async def chat(
         tools = [tool for tool in all_tools if tool.name in tool_configs]
         tools = [t.copy(update={"callbacks": callbacks}) for t in tools]
         full_chain = create_models_chains(
-            prompts=prompts,
-            models=models,
+            prompts=prompt,
+            models=model,
             tools=tools,
             callbacks=callbacks,
             history=history,
@@ -180,7 +200,7 @@ async def chat(
                 content=data.get("text", ""),
                 role="assistant",
                 tool_calls=data["tool_calls"],
-                model=models["llm_model"].model_name,
+                model=model.model_name,
                 status=data["status"],
                 message_type=data["message_type"],
             )

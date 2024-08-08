@@ -109,6 +109,8 @@ TEMPERATURE = 0.8
 
 def get_ChatOpenAI(
         model_name: str = DEFAULT_LLM_MODEL,
+        base_url: str = "",
+        api_key: str = "",
         temperature: float = TEMPERATURE,
         max_tokens: int = None,
         streaming: bool = True,
@@ -129,10 +131,12 @@ def get_ChatOpenAI(
     try:
         # TODO 配置文件
         params.update(
+            openai_api_base=base_url,
+            openai_api_key=api_key,
             # openai_api_base="https://open.bigmodel.cn/api/paas/v4/",
             # openai_api_key="8424573178d3681bb2e9bfbc5af24dd5.BKKxdk1d6zzgvfnV",
-            openai_api_base="https://api.chatanywhere.tech/v1/",
-            openai_api_key="sk-cERDW9Fr2ujq8D2qYck9cpc9MtPytN26466bunfYXZVZWV7Y",
+            # openai_api_base="https://api.chatanywhere.tech/v1/",
+            # openai_api_key="sk-cERDW9Fr2ujq8D2qYck9cpc9MtPytN26466bunfYXZVZWV7Y",
             openai_proxy="",
 
         )
@@ -143,17 +147,6 @@ def get_ChatOpenAI(
         )
         model = None
     return model
-
-
-def get_prompt_template(type: str, name: str) -> Optional[str]:
-    """
-    从prompt_config中加载模板内容
-    type: "llm_chat","knowledge_base_chat","search_engine_chat"的其中一种，如果有新功能，应该进行加入。
-    """
-
-    from src.mindpilot.app.configs import PROMPT_TEMPLATES
-
-    return PROMPT_TEMPLATES.get(type, {}).get(name)
 
 
 def get_tool(name: str = None) -> Union[BaseTool, Dict[str, BaseTool]]:
@@ -184,49 +177,6 @@ async def wrap_done(fn: Awaitable, event: asyncio.Event):
     finally:
         # Signal the aiter to stop.
         event.set()
-
-
-def get_OpenAIClient(
-        platform_name: str = None,
-        model_name: str = None,
-        is_async: bool = True,
-) -> Union[openai.Client, openai.AsyncClient]:
-    # """
-    # construct an openai Client for specified platform or model
-    # """
-    # if platform_name is None:
-    #     platform_info = get_model_info(
-    #         model_name=model_name, platform_name=platform_name
-    #     )
-    #     if platform_info is None:
-    #         raise RuntimeError(
-    #             f"cannot find configured platform for model: {model_name}"
-    #         )
-    #     platform_name = platform_info.get("platform_name")
-    # platform_info = get_config_platforms().get(platform_name)
-    # assert platform_info, f"cannot find configured platform: {platform_name}"
-    # TODO 配置文件
-    params = {
-        # "base_url": "https://open.bigmodel.cn/api/paas/v4/",
-        # "api_key": "8424573178d3681bb2e9bfbc5af24dd5.BKKxdk1d6zzgvfnV"
-        "base_url": "https://api.chatanywhere.tech/v1/",
-        "api_key": "sk-cERDW9Fr2ujq8D2qYck9cpc9MtPytN26466bunfYXZVZWV7Y"
-    }
-    httpx_params = {}
-    # if api_proxy := platform_info.get("api_proxy"):
-    #     httpx_params = {
-    #         "proxies": api_proxy,
-    #         "transport": httpx.HTTPTransport(local_address="0.0.0.0"),
-    #     }
-
-    if is_async:
-        if httpx_params:
-            params["http_client"] = httpx.AsyncClient(**httpx_params)
-        return openai.AsyncClient(**params)
-    else:
-        if httpx_params:
-            params["http_client"] = httpx.Client(**httpx_params)
-        return openai.Client(**params)
 
 
 def get_tool_config(name: str = None) -> Dict:
