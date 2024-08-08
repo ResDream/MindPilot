@@ -116,7 +116,6 @@ def get_ChatOpenAI(
         streaming: bool = True,
         callbacks: List[Callable] = [],
         verbose: bool = True,
-        local_wrap: bool = False,  # use local wrapped api
         **kwargs: Any,
 ) -> ChatOpenAI:
     params = dict(
@@ -129,14 +128,9 @@ def get_ChatOpenAI(
         **kwargs,
     )
     try:
-        # TODO 配置文件
         params.update(
             openai_api_base=base_url,
             openai_api_key=api_key,
-            # openai_api_base="https://open.bigmodel.cn/api/paas/v4/",
-            # openai_api_key="8424573178d3681bb2e9bfbc5af24dd5.BKKxdk1d6zzgvfnV",
-            # openai_api_base="https://api.chatanywhere.tech/v1/",
-            # openai_api_key="sk-cERDW9Fr2ujq8D2qYck9cpc9MtPytN26466bunfYXZVZWV7Y",
             openai_proxy="",
 
         )
