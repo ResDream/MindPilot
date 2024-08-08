@@ -1,6 +1,6 @@
 # Langchain 自带的 Wolfram Alpha API 封装
 
-from ..pydantic_v1 import Field
+from src.mindpilot.app.utils.pydantic_v1 import Field
 
 from .tools_registry import BaseToolOutput, regist_tool
 from ..utils.system_utils import get_tool_config
