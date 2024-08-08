@@ -1,4 +1,4 @@
-from ..pydantic_v1 import Field
+from src.mindpilot.app.utils.pydantic_v1 import Field
 
 from .tools_registry import BaseToolOutput, regist_tool
 

@@ -1,8 +1,8 @@
-from typing import Dict, List, Tuple, Union
+from typing import List, Union
 from langchain.prompts.chat import ChatMessagePromptTemplate
-from ..pydantic_v2 import BaseModel, Field
+from src.mindpilot.app.utils.pydantic_v2 import BaseModel, Field
 import logging
-from typing import AsyncGenerator, Dict, Iterable, Tuple
+from typing import Dict, Tuple
 
 logger = logging.getLogger()
 

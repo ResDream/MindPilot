@@ -5,7 +5,7 @@ from typing import Any, Callable, Dict, Optional, Tuple, Type, Union
 from langchain.agents import tool
 from langchain_core.tools import BaseTool
 
-from ..pydantic_v1 import BaseModel, Extra
+from src.mindpilot.app.utils.pydantic_v1 import BaseModel, Extra
 
 __all__ = ["regist_tool", "BaseToolOutput"]
 

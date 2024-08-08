@@ -15,7 +15,7 @@ from openai.types.chat import (
 from ..utils.system_utils import MsgType
 
 TEMPERATURE = 0.8
-from ..pydantic_v2 import AnyUrl, BaseModel, Field
+from src.mindpilot.app.utils.pydantic_v2 import AnyUrl, BaseModel, Field
 
 
 class OpenAIBaseInput(BaseModel):
