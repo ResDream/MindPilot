@@ -193,3 +193,15 @@ class BaseResponse(BaseModel):
                 "msg": "success",
             }
         }
+
+class ListResponse(BaseResponse):
+    data: List[Any] = Field(..., description="List of data")
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "code": 200,
+                "msg": "success",
+                "data": ["doc1.docx", "doc2.pdf", "doc3.txt"],
+            }
+        }
