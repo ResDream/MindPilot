@@ -20,7 +20,7 @@ def create_agent(
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS agents (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        agent_name TEXT NOT NULL UNIQUE,
+        agent_name TEXT NOT NULL ,
         agent_abstract TEXT,
         agent_info TEXT,
         temperature REAL,
@@ -34,11 +34,6 @@ def create_agent(
 
     if agent_name is None or agent_name.strip() == "":
         return BaseResponse(code=404, msg="Agent名称不能为空，请重新填写Agent名称")
-
-    cursor.execute('SELECT id FROM agents WHERE agent_name = ?', (agent_name,))
-    existing_agent = cursor.fetchone()
-    if existing_agent:
-        return BaseResponse(code=404, msg=f"已存在同名Agent {agent_name}")
 
     # TODO 处理知识库
 
@@ -99,10 +94,6 @@ def update_agent(
     if agent_name is None or agent_name.strip() == "":
         return BaseResponse(code=404, msg="Agent名称不能为空，请重新填写Agent名称")
 
-    cursor.execute('SELECT id FROM agents WHERE agent_name = ?', (agent_name,))
-    existing_agent = cursor.fetchone()
-    if existing_agent:
-        return BaseResponse(code=404, msg=f"已存在同名Agent {agent_name}")
 
     #TODO 处理知识库
 
@@ -126,7 +117,7 @@ def list_agent() -> ListResponse:
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS agents (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        agent_name TEXT NOT NULL UNIQUE,
+        agent_name TEXT NOT NULL,
         agent_abstract TEXT,
         agent_info TEXT,
         temperature REAL,
