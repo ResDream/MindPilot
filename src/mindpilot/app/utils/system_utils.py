@@ -35,7 +35,7 @@ from langchain_openai.llms import OpenAI
 #     TEMPERATURE,
 #     log_verbose,
 # )
-# from chatchat.server.pydantic_v2 import BaseModel, Field
+from .pydantic_v2 import BaseModel, Field
 
 logger = logging.getLogger()
 
@@ -180,3 +180,16 @@ def get_tool_config(name: str = None) -> Dict:
         return TOOL_CONFIG
     else:
         return TOOL_CONFIG.get(name, {})
+
+class BaseResponse(BaseModel):
+    code: int = Field(200, description="API status code")
+    msg: str = Field("success", description="API status message")
+    data: Any = Field(None, description="API data")
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "code": 200,
+                "msg": "success",
+            }
+        }
