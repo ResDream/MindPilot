@@ -52,27 +52,28 @@ def create_agent(
 
 
 def delete_agent(
-        agent_name: str = Body(..., examples=["ChatGPT Agent"])
+        agent_id: int = Body(..., examples=["1"])
 ) -> BaseResponse:
     conn = sqlite3.connect('agents.db')
     cursor = conn.cursor()
 
-    if agent_name is None or agent_name.strip() == "":
-        return BaseResponse(code=404, msg="Agent名称不能为空，请重新填写Agent名称")
+    if agent_id is None:
+        return BaseResponse(code=404, msg="Agent ID不能为空，请重新填写Agent ID")
 
-    cursor.execute('SELECT id FROM agents WHERE agent_name = ?', (agent_name,))
+    cursor.execute('SELECT id FROM agents WHERE id = ?', (agent_id,))
     existing_agent = cursor.fetchone()
     if not existing_agent:
-        return BaseResponse(code=404, msg=f"不存在名为 {agent_name} 的Agent")
+        return BaseResponse(code=404, msg=f"不存在ID为 {agent_id} 的Agent")
 
-    cursor.execute('DELETE FROM agents WHERE agent_name = ?', (agent_name,))
+    cursor.execute('DELETE FROM agents WHERE id = ?', (agent_id,))
     conn.commit()
     conn.close()
 
-    return BaseResponse(code=200, msg=f"已删除Agent {agent_name}")
+    return BaseResponse(code=200, msg=f"已删除ID为 {agent_id} 的Agent")
 
 
 def update_agent(
+        agent_id: int = Body(..., examples=["1"]),
         agent_name: str = Body(..., examples=["ChatGPT Agent"]),
         agent_abstract: str = Body("", description="Agent简介。"),
         agent_info: str = Body("", description="Agent详细配置信息"),
@@ -84,23 +85,23 @@ def update_agent(
     conn = sqlite3.connect('agents.db')
     cursor = conn.cursor()
 
-    if agent_name is None or agent_name.strip() == "":
-        return BaseResponse(code=404, msg="Agent名称不能为空，请重新填写Agent名称")
+    if agent_id is None:
+        return BaseResponse(code=404, msg="Agent ID不能为空，请重新填写Agent ID")
 
-    cursor.execute('SELECT id FROM agents WHERE agent_name = ?', (agent_name,))
+    cursor.execute('SELECT id FROM agents WHERE id = ?', (agent_id,))
     existing_agent = cursor.fetchone()
     if not existing_agent:
-        return BaseResponse(code=404, msg=f"不存在名为 {agent_name} 的Agent")
+        return BaseResponse(code=404, msg=f"不存在ID为 {agent_id} 的Agent")
 
     #TODO 处理知识库
 
     cursor.execute('''
         UPDATE agents
-        SET agent_abstract = ?, agent_info = ?, temperature = ?, max_tokens = ?, tool_config = ?, kb_name = ?
-        WHERE agent_name = ?
+        SET agent_name = ?, agent_abstract = ?, agent_info = ?, temperature = ?, max_tokens = ?, tool_config = ?, kb_name = ?
+        WHERE id = ?
         ''', (
-        agent_abstract, agent_info, temperature, max_tokens, ','.join(tool_config), ','.join(kb_name),
-        agent_name))
+        agent_name, agent_abstract, agent_info, temperature, max_tokens, ','.join(tool_config), ','.join(kb_name),
+        agent_id))
     conn.commit()
     conn.close()
 
@@ -151,20 +152,20 @@ def list_agent() -> ListResponse:
 
 
 def get_agent(
-        agent_name: str = Query(..., examples=["ChatGPT Agent"])
+        agent_id: int = Query(..., examples=["1"]),
 ):
     conn = sqlite3.connect('agents.db')
     cursor = conn.cursor()
 
-    if agent_name is None or agent_name.strip() == "":
-        return BaseResponse(code=404, msg="Agent名称不能为空，请重新填写Agent名称")
+    if agent_id is None:
+        return BaseResponse(code=404, msg="Agent ID不能为空，请重新填写Agent ID")
 
-    cursor.execute('SELECT * FROM agents WHERE agent_name = ?', (agent_name,))
+    cursor.execute('SELECT * FROM agents WHERE id = ?', (agent_id,))
     agent = cursor.fetchone()
     conn.close()
 
     if not agent:
-        return BaseResponse(code=404, msg=f"不存在名为 {agent_name} 的Agent")
+        return BaseResponse(code=404, msg=f"不存在ID为 {agent_id} 的Agent")
 
     print(agent)
     # 将查询结果转换为字典
@@ -179,4 +180,4 @@ def get_agent(
         "kb_name": agent[7].split(',') if agent[7] else []
     }
 
-    return ListResponse(code=200, msg=f"获取Agent {agent_name} 信息成功", data=[agent_dict])
+    return ListResponse(code=200, msg=f"获取Agent ID为 {agent_id} 的信息成功", data=[agent_dict])
