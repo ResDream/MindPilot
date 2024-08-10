@@ -11,8 +11,7 @@ def create_agent(
         temperature: float = Body(0.8, description="LLM温度"),
         max_tokens: int = Body(4096, description="模型输出最大长度"),
         tool_config: List[str] = Body([], description="工具配置", examples=[["search_internet", "weather_check"]]),
-        # kb_files: Optional[List[UploadFile]] = File(None, description="知识库文件"),
-        kb_files: List[UploadFile] = File(None, description="知识库文件"),
+        kb_name: List[str] = Body([], examples=[["ChatGPT KB"]]),
 ) -> BaseResponse:
     conn = sqlite3.connect('agents.db')
     cursor = conn.cursor()
@@ -26,7 +25,7 @@ def create_agent(
         temperature REAL,
         max_tokens INTEGER,
         tool_config TEXT,
-        kb_files TEXT
+        kb_name TEXT
     )
     ''')
     conn.commit()
@@ -39,17 +38,13 @@ def create_agent(
     if existing_agent:
         return BaseResponse(code=404, msg=f"已存在同名Agent {agent_name}")
 
-    # TODO 处理上传的知识库文件
-    kb_files_list = []
-    if kb_files:
-        for file in kb_files:
-            kb_files_list.append(file.filename)
+    # TODO 处理知识库
 
     cursor.execute('''
-        INSERT INTO agents (agent_name, agent_abstract, agent_info, temperature, max_tokens, tool_config, kb_files)
+        INSERT INTO agents (agent_name, agent_abstract, agent_info, temperature, max_tokens, tool_config, kb_name)
         VALUES (?, ?, ?, ?, ?, ?, ?)
         ''', (
-    agent_name, agent_abstract, agent_info, temperature, max_tokens, ','.join(tool_config), ','.join(kb_files_list)))
+        agent_name, agent_abstract, agent_info, temperature, max_tokens, ','.join(tool_config), ','.join(kb_name)))
     conn.commit()
     conn.close()
 
@@ -84,8 +79,7 @@ def update_agent(
         temperature: float = Body(0.8, description="LLM温度"),
         max_tokens: int = Body(4096, description="模型输出最大长度"),
         tool_config: List[str] = Body([], description="工具配置", examples=[["search_internet", "weather_check"]]),
-        # kb_files: Optional[List[UploadFile]] = File(None, description="知识库文件"),
-        kb_files: List[UploadFile] = File(None, description="知识库文件"),
+        kb_name: List[str] = Body([], examples=[["ChatGPT KB"]]),
 ) -> BaseResponse:
     conn = sqlite3.connect('agents.db')
     cursor = conn.cursor()
@@ -98,18 +92,15 @@ def update_agent(
     if not existing_agent:
         return BaseResponse(code=404, msg=f"不存在名为 {agent_name} 的Agent")
 
-    # 处理上传的知识库文件
-    kb_files_list = []
-    if kb_files:
-        for file in kb_files:
-            kb_files_list.append(file.filename)
+    #TODO 处理知识库
 
     cursor.execute('''
         UPDATE agents
-        SET agent_abstract = ?, agent_info = ?, temperature = ?, max_tokens = ?, tool_config = ?, kb_files = ?
+        SET agent_abstract = ?, agent_info = ?, temperature = ?, max_tokens = ?, tool_config = ?, kb_name = ?
         WHERE agent_name = ?
         ''', (
-    agent_abstract, agent_info, temperature, max_tokens, ','.join(tool_config), ','.join(kb_files_list), agent_name))
+        agent_abstract, agent_info, temperature, max_tokens, ','.join(tool_config), ','.join(kb_name),
+        agent_name))
     conn.commit()
     conn.close()
 
@@ -129,7 +120,7 @@ def list_agent() -> ListResponse:
         temperature REAL,
         max_tokens INTEGER,
         tool_config TEXT,
-        kb_files TEXT
+        kb_name TEXT
     )
     ''')
     conn.commit()
@@ -139,7 +130,7 @@ def list_agent() -> ListResponse:
     conn.close()
 
     if not agents:
-        return ListResponse(code=200, msg="当前没有Agent信息",data=[])
+        return ListResponse(code=200, msg="当前没有Agent信息", data=[])
 
     # 将查询结果转换为字典列表
     agent_list = []
@@ -152,7 +143,7 @@ def list_agent() -> ListResponse:
             "temperature": agent[4],
             "max_tokens": agent[5],
             "tool_config": agent[6].split(',') if agent[6] else [],
-            "kb_files": agent[7].split(',') if agent[7] else []
+            "kb_name": agent[7].split(',') if agent[7] else []
         }
         agent_list.append(agent_dict)
 
@@ -185,7 +176,7 @@ def get_agent(
         "temperature": agent[4],
         "max_tokens": agent[5],
         "tool_config": agent[6].split(',') if agent[6] else [],
-        "kb_files": agent[7].split(',') if agent[7] else []
+        "kb_name": agent[7].split(',') if agent[7] else []
     }
 
     return ListResponse(code=200, msg=f"获取Agent {agent_name} 信息成功", data=[agent_dict])
