@@ -36,17 +36,11 @@ def agents_registry(
             HumanMessagePromptTemplate(
                 prompt=PromptTemplate(
                     input_variables=['agent_scratchpad', 'input'],
-                    template='''
-{input}
-
-{agent_scratchpad}
-(reminder to respond in a JSON blob no matter what)
-'''
+                    template='''{input}\n\n{agent_scratchpad}\n(reminder to respond in a JSON blob no matter what)\n'''
                 )
             )
         ]
     )
-    # print(prompt)
 
     agent = create_structured_chat_agent(llm=llm, tools=tools, prompt=prompt)
 

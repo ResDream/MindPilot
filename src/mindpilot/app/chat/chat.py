@@ -46,6 +46,8 @@ def create_models_from_config(configs, callbacks, stream):
         prompt = OPENAI_PROMPT
     else:
         #TODO 其他不兼容OPENAI API格式的平台
+        model = None
+        prompt = None
         pass
 
     return model, prompt
@@ -104,14 +106,13 @@ async def chat(
                     "gpt-4o-mini": {
                         "temperature": 0.8,
                         "max_tokens": 8192,
-                        "history_len": 10,
-                        "prompt_name": "default",
                         "callbacks": True,
                     },
                 }
             }]),
     tool_config: List[str] = Body([], description="工具配置", examples=[]),
-    agent_enable: bool = Body(True, description="是否启用Agent")
+    agent_enable: bool = Body(True, description="是否启用Agent"),
+    agent_name: str = Body("default", description="使用的Agent，默认为default")
 ):
     """Agent 对话"""
 
@@ -122,6 +123,11 @@ async def chat(
         model, prompt = create_models_from_config(
             callbacks=callbacks, configs=chat_model_config, stream=stream
         )
+
+        if agent_name != "default":
+            #TODO 从数据库中获取Agent相关配置
+            pass
+
         all_tools = get_tool().values()
         tool_configs = tool_config or TOOL_CONFIG
         tools = [tool for tool in all_tools if tool.name in tool_configs]
