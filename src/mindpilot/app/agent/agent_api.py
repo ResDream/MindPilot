@@ -140,7 +140,7 @@ def list_agent() -> ListResponse:
     agent_list = []
     for agent in agents:
         agent_dict = {
-            "id": agent[0],
+            "agent_id": agent[0],
             "agent_name": agent[1],
             "agent_abstract": agent[2],
             "agent_info": agent[3],
