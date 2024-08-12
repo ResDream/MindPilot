@@ -18,6 +18,7 @@ from ..callback_handler.agent_callback_handler import (
 from ..chat.utils import History
 from ..configs import MODEL_CONFIG, TOOL_CONFIG, OPENAI_PROMPT
 from ..utils.system_utils import get_ChatOpenAI, get_tool, wrap_done, MsgType
+from ..agent.utils import get_agent_from_id
 
 
 def create_models_from_config(configs, callbacks, stream):
@@ -62,7 +63,7 @@ def create_models_chains(
             [i.to_msg_template() for i in history]
         )
     else:
-        chat_prompt = None
+        chat_prompt = ChatPromptTemplate.from_messages([])
 
     llm = models
     llm.callbacks = callbacks
@@ -118,17 +119,29 @@ async def chat(
         model, prompt = create_models_from_config(
             callbacks=callbacks, configs=chat_model_config, stream=stream
         )
+
+        all_tools = get_tool().values()
+        tool_configs = tool_config
+
         if agent_enable:
             if agent_id != -1:
-                # TODO 从数据库中获取Agent相关配置
-                pass
+                agent_dict = get_agent_from_id(agent_id)
+                agent_name = agent_dict["agent_name"]
+                agent_abstract = agent_dict["agent_abstract"]
+                agent_info = agent_dict["agent_info"]
+                if not tool_config:
+                    tool_configs = agent_dict["tool_config"]
+                agent_prompt_pre = "Your name is " + agent_name + "." + agent_abstract + ". Below is your detailed information:" + agent_info + "."
+                agent_prompt_after = "DO NOT forget " + agent_prompt_pre
+                prompt = agent_prompt_pre + prompt + agent_prompt_after
+                # TODO 处理知识库
             else:
                 prompt = prompt  # 默认Agent提示模板
 
-        all_tools = get_tool().values()
-        tool_configs = tool_config or TOOL_CONFIG
+        tool_configs = tool_configs or TOOL_CONFIG
         tools = [tool for tool in all_tools if tool.name in tool_configs]
         tools = [t.copy(update={"callbacks": callbacks}) for t in tools]
+
         full_chain = create_models_chains(
             prompts=prompt,
             models=model,
