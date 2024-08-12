@@ -181,6 +181,7 @@ def get_tool_config(name: str = None) -> Dict:
     else:
         return TOOL_CONFIG.get(name, {})
 
+
 class BaseResponse(BaseModel):
     code: int = Field(200, description="API status code")
     msg: str = Field("success", description="API status message")
@@ -193,6 +194,7 @@ class BaseResponse(BaseModel):
                 "msg": "success",
             }
         }
+
 
 class ListResponse(BaseResponse):
     data: List[Any] = Field(..., description="List of data")
