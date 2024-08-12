@@ -41,11 +41,39 @@ def create_agent(
         INSERT INTO agents (agent_name, agent_abstract, agent_info, temperature, max_tokens, tool_config, kb_name, avatar)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         ''', (
-        agent_name, agent_abstract, agent_info, temperature, max_tokens, ','.join(tool_config), ','.join(kb_name), avatar))
+        agent_name, agent_abstract, agent_info, temperature, max_tokens, ','.join(tool_config), ','.join(kb_name),
+        avatar))
     conn.commit()
+
+    # 获取最后插入的记录的 ID
+    cursor.execute('SELECT last_insert_rowid()')
+    agent_id = cursor.fetchone()[0]
+
+    # 查询刚刚插入的记录
+    cursor.execute('''
+            SELECT id, agent_name, agent_abstract, agent_info, temperature, max_tokens, tool_config, kb_name, avatar
+            FROM agents
+            WHERE id = ?
+            ''', (agent_id,))
+    agent_data = cursor.fetchone()
+
     conn.close()
 
-    return BaseResponse(code=200, msg=f"已新增Agent {agent_name}")
+    if agent_data:
+        agent_dict = {
+            "id": agent_data[0],
+            "agent_name": agent_data[1],
+            "agent_abstract": agent_data[2],
+            "agent_info": agent_data[3],
+            "temperature": agent_data[4],
+            "max_tokens": agent_data[5],
+            "tool_config": agent_data[6].split(',') if agent_data[6] else [],
+            "kb_name": agent_data[7].split(',') if agent_data[7] else [],
+            "avatar": agent_data[8]
+        }
+        return BaseResponse(code=200, msg=f"已新增Agent {agent_name}", data=agent_dict)
+    else:
+        return BaseResponse(code=500, msg="无法获取新增的Agent信息")
 
 
 def delete_agent(
@@ -94,15 +122,15 @@ def update_agent(
     if agent_name is None or agent_name.strip() == "":
         return BaseResponse(code=404, msg="Agent名称不能为空，请重新填写Agent名称")
 
-
-    #TODO 处理知识库
+    # TODO 处理知识库
 
     cursor.execute('''
         UPDATE agents
         SET agent_name = ?, agent_abstract = ?, agent_info = ?, temperature = ?, max_tokens = ?, tool_config = ?, kb_name = ?, avatar = ?
         WHERE id = ?
         ''', (
-        agent_name, agent_abstract, agent_info, temperature, max_tokens, ','.join(tool_config), ','.join(kb_name), avatar,
+        agent_name, agent_abstract, agent_info, temperature, max_tokens, ','.join(tool_config), ','.join(kb_name),
+        avatar,
         agent_id))
     conn.commit()
     conn.close()
@@ -171,7 +199,6 @@ def get_agent(
     if not agent:
         return BaseResponse(code=404, msg=f"不存在ID为 {agent_id} 的Agent")
 
-    print(agent)
     # 将查询结果转换为字典
     agent_dict = {
         "id": agent[0],
@@ -185,4 +212,4 @@ def get_agent(
         "avatar": agent[8]
     }
 
-    return ListResponse(code=200, msg=f"获取Agent ID为 {agent_id} 的信息成功", data=[agent_dict])
+    return BaseResponse(code=200, msg=f"获取Agent ID为 {agent_id} 的信息成功", data=agent_dict)

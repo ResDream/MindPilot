@@ -45,7 +45,7 @@ def create_models_from_config(configs, callbacks, stream):
         model = model_instance
         prompt = OPENAI_PROMPT
     else:
-        #TODO 其他不兼容OPENAI API格式的平台
+        # TODO 其他不兼容OPENAI API格式的平台
         model = None
         prompt = None
         pass
@@ -53,13 +53,9 @@ def create_models_from_config(configs, callbacks, stream):
     return model, prompt
 
 
-
-
 def create_models_chains(
-    history, prompts, models, tools, callbacks, agent_enable
+        history, prompts, models, tools, callbacks, agent_enable
 ):
-    chat_prompt = None
-
     if history:
         history = [History.from_data(h) for h in history]
         chat_prompt = ChatPromptTemplate.from_messages(
@@ -76,7 +72,6 @@ def create_models_chains(
         agent_executor = agents_registry(
             llm=llm, callbacks=callbacks, tools=tools, prompt=prompts, verbose=True
         )
-        # full_chain = {"input": lambda x: x["input"]} | agent_executor
         full_chain = {"input": lambda x: x["input"], "chat_history": lambda x: x["chat_history"]} | agent_executor
     else:
         chain.llm.callbacks = callbacks
@@ -85,34 +80,34 @@ def create_models_chains(
 
 
 async def chat(
-    query: str = Body(..., description="用户输入", examples=[""]),
-    history: List[History] = Body(
-        [],
-        description="历史对话",
-        examples=[
-            [
-                {"role": "user", "content": "你好"},
-                {"role": "assistant", "content": "您好，我是智能Agent桌面助手MindPilot，请问有什么可以帮您？"},
-            ]
-        ],
-    ),
-    stream: bool = Body(True, description="流式输出"),
-    chat_model_config: dict = Body({}, description="LLM 模型配置", examples=[{
-                "platform": "OpenAI",
-                "is_openai": True,
-                "base_url": "https://api.chatanywhere.tech/v1/",
-                "api_key": "sk-cERDW9Fr2ujq8D2qYck9cpc9MtPytN26466bunfYXZVZWV7Y",
-                "llm_model": {
-                    "gpt-4o-mini": {
-                        "temperature": 0.8,
-                        "max_tokens": 8192,
-                        "callbacks": True,
-                    },
-                }
-            }]),
-    tool_config: List[str] = Body([], description="工具配置", examples=[]),
-    agent_enable: bool = Body(True, description="是否启用Agent"),
-    agent_id: int = Body(-1, description="使用的Agent ID，默认为-1")
+        query: str = Body(..., description="用户输入", examples=[""]),
+        history: List[History] = Body(
+            [],
+            description="历史对话",
+            examples=[
+                [
+                    {"role": "user", "content": "你好"},
+                    {"role": "assistant", "content": "您好，我是智能Agent桌面助手MindPilot，请问有什么可以帮您？"},
+                ]
+            ],
+        ),
+        stream: bool = Body(True, description="流式输出"),
+        chat_model_config: dict = Body({}, description="LLM 模型配置", examples=[{
+            "platform": "OpenAI",
+            "is_openai": True,
+            "base_url": "https://api.chatanywhere.tech/v1/",
+            "api_key": "sk-cERDW9Fr2ujq8D2qYck9cpc9MtPytN26466bunfYXZVZWV7Y",
+            "llm_model": {
+                "gpt-4o-mini": {
+                    "temperature": 0.8,
+                    "max_tokens": 8192,
+                    "callbacks": True,
+                },
+            }
+        }]),
+        tool_config: List[str] = Body([], description="工具配置", examples=[]),
+        agent_enable: bool = Body(True, description="是否启用Agent"),
+        agent_id: int = Body(-1, description="使用的Agent ID，默认为-1")
 ):
     """Agent 对话"""
 
@@ -123,10 +118,12 @@ async def chat(
         model, prompt = create_models_from_config(
             callbacks=callbacks, configs=chat_model_config, stream=stream
         )
-
-        if agent_id != -1:
-            #TODO 从数据库中获取Agent相关配置
-            pass
+        if agent_enable:
+            if agent_id != -1:
+                # TODO 从数据库中获取Agent相关配置
+                pass
+            else:
+                prompt = prompt  # 默认Agent提示模板
 
         all_tools = get_tool().values()
         tool_configs = tool_config or TOOL_CONFIG
