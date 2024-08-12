@@ -55,21 +55,21 @@ def create_agent(
             FROM agents
             WHERE id = ?
             ''', (agent_id,))
-    agent_data = cursor.fetchone()
+    agent = cursor.fetchone()
 
     conn.close()
 
-    if agent_data:
+    if agent:
         agent_dict = {
-            "id": agent_data[0],
-            "agent_name": agent_data[1],
-            "agent_abstract": agent_data[2],
-            "agent_info": agent_data[3],
-            "temperature": agent_data[4],
-            "max_tokens": agent_data[5],
-            "tool_config": agent_data[6].split(',') if agent_data[6] else [],
-            "kb_name": agent_data[7].split(',') if agent_data[7] else [],
-            "avatar": agent_data[8]
+            "id": agent[0],
+            "agent_name": agent[1],
+            "agent_abstract": agent[2],
+            "agent_info": agent[3],
+            "temperature": agent[4],
+            "max_tokens": agent[5],
+            "tool_config": agent[6].split(',') if agent[6] else [],
+            "kb_name": agent[7].split(',') if agent[7] else [],
+            "avatar": agent[8]
         }
         return BaseResponse(code=200, msg=f"已新增Agent {agent_name}", data=agent_dict)
     else:
