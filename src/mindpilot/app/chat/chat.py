@@ -142,6 +142,7 @@ async def chat(
         tools = [tool for tool in all_tools if tool.name in tool_configs]
         tools = [t.copy(update={"callbacks": callbacks}) for t in tools]
 
+        print(prompt)
         full_chain = create_models_chains(
             prompts=prompt,
             models=model,
