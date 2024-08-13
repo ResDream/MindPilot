@@ -16,7 +16,7 @@ from ..callback_handler.agent_callback_handler import (
     AgentStatus,
 )
 from ..chat.utils import History
-from ..configs import MODEL_CONFIG, TOOL_CONFIG, OPENAI_PROMPT
+from ..configs import MODEL_CONFIG, TOOL_CONFIG, OPENAI_PROMPT, PROMPT_TEMPLATES
 from ..utils.system_utils import get_ChatOpenAI, get_tool, wrap_done, MsgType
 from ..agent.utils import get_agent_from_id
 
@@ -59,16 +59,21 @@ def create_models_chains(
 ):
     if history:
         history = [History.from_data(h) for h in history]
+        input_msg = History(role="user", content=PROMPT_TEMPLATES["llm_model"]["with_history"]).to_msg_template(
+            False
+        )
         chat_prompt = ChatPromptTemplate.from_messages(
-            [i.to_msg_template() for i in history]
+            [i.to_msg_template() for i in history] + [input_msg]
         )
     else:
-        # TODO 完善
-        chat_prompt = ChatPromptTemplate.from_messages([("system", "您好，我是智能Agent桌面助手MindPilot，请问有什么可以帮您？")])
+        input_msg = History(role="user", content=PROMPT_TEMPLATES["llm_model"]["default"]).to_msg_template(
+            False
+        )
+        chat_prompt = ChatPromptTemplate.from_messages([input_msg])
 
     llm = models
     llm.callbacks = callbacks
-    chain = LLMChain(prompt=chat_prompt, llm=llm)
+    chain = LLMChain(prompt=chat_prompt, llm=llm, verbose=True)
 
     if agent_enable:
         agent_executor = agents_registry(
@@ -77,7 +82,7 @@ def create_models_chains(
         full_chain = {"input": lambda x: x["input"], "chat_history": lambda x: x["chat_history"]} | agent_executor
     else:
         chain.llm.callbacks = callbacks
-        full_chain = {"input": lambda x: x["input"]} | chain
+        full_chain = {"input": lambda x: x["input"], "chat_history": lambda x: x["chat_history"]} | chain
     return full_chain
 
 
