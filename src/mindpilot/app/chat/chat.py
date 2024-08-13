@@ -63,7 +63,8 @@ def create_models_chains(
             [i.to_msg_template() for i in history]
         )
     else:
-        chat_prompt = ChatPromptTemplate.from_messages([])
+        # TODO 完善
+        chat_prompt = ChatPromptTemplate.from_messages([("system", "您好，我是智能Agent桌面助手MindPilot，请问有什么可以帮您？")])
 
     llm = models
     llm.callbacks = callbacks
@@ -142,7 +143,6 @@ async def chat(
         tools = [tool for tool in all_tools if tool.name in tool_configs]
         tools = [t.copy(update={"callbacks": callbacks}) for t in tools]
 
-        print(prompt)
         full_chain = create_models_chains(
             prompts=prompt,
             models=model,
