@@ -41,7 +41,7 @@ logger = logging.getLogger()
 
 
 def set_httpx_config(
-        timeout: float = 300,  # TODO 需要设计一个配置文件，修改为可以设置的timeout
+        timeout: float = 300,
         proxy: Union[str, Dict] = None,
         unused_proxies: List[str] = [],
 ):
