@@ -2,7 +2,7 @@ from __future__ import annotations
 from fastapi import APIRouter, Request
 from ..agent.agent_api import create_agent, delete_agent, update_agent, get_agent, list_agent
 
-agent_router = APIRouter(prefix="/agent", tags=["Agent配置"])
+agent_router = APIRouter(prefix="/api/agent", tags=["Agent配置"])
 
 agent_router.post(
     "/create_agent",

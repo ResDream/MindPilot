@@ -5,6 +5,7 @@ from starlette.responses import RedirectResponse
 from .chat_routes import chat_router
 from .tool_routes import tool_router
 from .agent_routes import agent_router
+from .config_routes import config_router
 
 
 def create_app(run_mode: str = None):
@@ -24,5 +25,6 @@ def create_app(run_mode: str = None):
     app.include_router(chat_router)
     app.include_router(tool_router)
     app.include_router(agent_router)
+    app.include_router(config_router)
 
     return app

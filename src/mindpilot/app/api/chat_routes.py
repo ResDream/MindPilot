@@ -5,7 +5,7 @@ from ..chat.chat import chat
 chat_router = APIRouter(prefix="/chat", tags=["MindPilot对话"])
 
 chat_router.post(
-    "/chat/online",
+    "/online",
     summary="以API方式与在线llm模型进行对话",
 )(chat)
 
