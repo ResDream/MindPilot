@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from ..utils.system_utils import get_tool
 
-tool_router = APIRouter(prefix="/tools", tags=["获取工具"])
+tool_router = APIRouter(prefix="/api/tools", tags=["获取工具"])
 
 
 @tool_router.get("/available_tools", summary="获取可用工具")
