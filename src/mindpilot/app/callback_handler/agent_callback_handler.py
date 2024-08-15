@@ -43,7 +43,7 @@ class AgentExecutorAsyncIteratorCallbackHandler(AsyncIteratorCallbackHandler):
         self.queue.put_nowait(dumps(data))
 
     async def on_llm_new_token(self, token: str, **kwargs: Any) -> None:
-        special_tokens = ["\n\nAction:", "\n\nObservation:", "<|observation|>", "\n\nThought:"]
+        special_tokens = ["\n\nAction:", "\n\nObservation:", "<|observation|>", "\n\nThought:", "\nThought:", "\nAction:"]
         for stoken in special_tokens:
             if stoken in token:
                 before_action = token.split(stoken)[0]
