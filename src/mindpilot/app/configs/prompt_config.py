@@ -50,6 +50,6 @@ Action:
 ```
 
 Begin! Reminder to ALWAYS respond with a valid JSON blob of a single action. Use tools if necessary. Try to reply in Chinese as much as possible.
-Don't forget the Question, Thought, and Observation sections.You MUST strictly follow the above process to output, first output the Question section ONCE, then repeat the Thought section, Action section, Observation section N times until you receive the Final Answer.
+Don't forget the Question, Thought, and Observation sections.You MUST strictly follow the above process to output, The Question can only be output once throughout the entire process, then repeat the Thought section, Action section, Observation section N times until you receive the Final Answer.
 Please provide as much output content as possible for the Final Answer.
 '''

@@ -1,4 +1,5 @@
 import json
+import re
 from typing import List
 
 from fastapi import Body
@@ -6,7 +7,7 @@ from uuid import uuid4
 from datetime import datetime
 import sqlite3
 from ..utils.system_utils import BaseResponse, ListResponse, get_mindpilot_db_connection
-from .message import init_messages_table, insert_message
+from .message import init_messages_table, insert_message, split_message_content
 from ..model_configs.utils import get_config_from_id
 from ..agent.utils import get_agent_from_id
 from ..chat.chat import chat_online
@@ -181,14 +182,6 @@ async def send_messages(
         content: str = Body("", description="消息内容"),
         tool_config: List[str] = Body([], description="工具配置", examples=[]),
 ):
-    """
-        1. 获取历史记录
-        2. 存放用户输入
-        3. 获取模型配置
-        4. 获取agent信息
-        5. 组织模型输出
-        6. 存放模型输出
-    """
     init_conversations_table()
     init_messages_table()
     conn = get_mindpilot_db_connection()
@@ -210,9 +203,22 @@ async def send_messages(
             "content": row['content']
         })
 
+    if len(history) == 0:
+        # TODO 总结标题
+        pass
+
+    # print(history)
+
     # 存放用户输入
-    insert_message(agent_status=0, role=role, content=content, files=json.dumps(files), conversation_id=conversation_id,
-                   tool_calls=json.dumps({}))
+    _, timestamp_user = insert_message(agent_status=0, role=role, content=content, files=json.dumps(files),
+                                       conversation_id=conversation_id)
+
+    cursor.execute('''
+            UPDATE conversations
+            SET updated_at = ?
+            WHERE conversation_id = ?
+        ''', (timestamp_user, conversation_id))
+    conn.commit()
 
     # 获取模型配置
     chat_model_config = get_config_from_id(config_id=config_id)
@@ -221,31 +227,57 @@ async def send_messages(
     ret = await chat_online(content=content, history=history, chat_model_config=chat_model_config,
                             tool_config=tool_config, agent_id=agent_id)
 
-    # 解析模型输出
-    message_id = str(uuid4())
-    message_role = ret['choices'][0]['message']['role']
-    message_content = ret['choices'][0]['message']['content']
-    tool_calls = ret['choices'][0]['message']['tool_calls']
+    response_messages = []
+    for message in ret:
+        if message['status'] == 7:
+            message_role = message['choices'][0]['role']
+            message_content = "Observation:\n" + message['choices'][0]['delta']['tool_calls'][0]['tool_output']
+            message_id, timestamp_message = insert_message(agent_status=7, role=message_role, content=message_content,
+                                                           files=json.dumps({}), conversation_id=conversation_id)
 
-    # 存放模型输出
-    timestamp = insert_message(agent_status=5, role=message_role, content=message_content, files=json.dumps(files),
-                               conversation_id=conversation_id, tool_calls=json.dumps(tool_calls))
+            cursor.execute('''
+                    UPDATE conversations
+                    SET updated_at = ?
+                    WHERE conversation_id = ?
+                ''', (timestamp_message, conversation_id))
+            conn.commit()
 
-    # 构建响应
-    response_data = {
-        "messages": [
-            {
-                "id": message_id,
-                "role": message_role,
-                "agent_status": 5,
+            message_dict = {
+                "message_id": message_id,
+                "agent_status": 7,
                 "content": message_content,
-                "tool_calls": tool_calls,
-                "files": files,
-                "timestamp": datetime.fromisoformat(timestamp)
+                "files": [],
+                "timestamp": timestamp_message
             }
-        ]
-    }
+            response_messages.append(message_dict)
+
+        if message['status'] == 3:
+            message_role = message['choices'][0]['role']
+            message_content = message['choices'][0]['delta']['content']
+            message_list = split_message_content(message_content)
+            for m in message_list:
+                message_id, timestamp_message = insert_message(agent_status=3, role=message_role, content=m,
+                                                               files=json.dumps({}), conversation_id=conversation_id)
+
+                cursor.execute('''
+                        UPDATE conversations
+                        SET updated_at = ?
+                        WHERE conversation_id = ?
+                    ''', (timestamp_message, conversation_id))
+                conn.commit()
+
+                message_dict = {
+                    "message_id": message_id,
+                    "agent_status": 3,
+                    "content": m,
+                    "files": [],
+                    "timestamp": timestamp_message
+                }
+
+                response_messages.append(message_dict)
+
+        # TODO 这里考虑处理一下message['status']是4但之前一个message['status']不是3的，即agent无法解析的内容
 
     conn.close()
 
-    return BaseResponse(code=200, msg="success", data=response_data)
+    return BaseResponse(code=200, msg="success", data=response_messages)

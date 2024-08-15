@@ -317,7 +317,6 @@ async def chat_online(
         last_tool = {}
         async for chunk in callback.aiter():
             data = json.loads(chunk)
-            # print("data:{}".format(data))
             data["tool_calls"] = []
             data["message_type"] = MsgType.TEXT
 
@@ -369,25 +368,12 @@ async def chat_online(
 
         await task
 
-    ret = OpenAIChatOutput(
-        id=f"chat{uuid.uuid4()}",
-        object="chat.completion",
-        content="",
-        role="assistant",
-        finish_reason="stop",
-        tool_calls=[],
-        status=AgentStatus.agent_finish,
-        message_type=MsgType.TEXT,
-    )
+    ret = []
 
     async for chunk in chat_iterator():
         data = json.loads(chunk)
-        # print(data)
-        if text := data["choices"][0]["delta"]["content"]:
-            ret.content += text
-        if data["status"] == AgentStatus.tool_end:
-            ret.tool_calls += data["choices"][0]["delta"]["tool_calls"]
-        ret.model = data["model"]
-        ret.created = data["created"]
+        print(data)
+        if data["status"] != AgentStatus.llm_start and data["status"] != AgentStatus.llm_new_token:
+            ret.append(data)
 
-    return ret.model_dump()
+    return ret
