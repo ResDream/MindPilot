@@ -14,7 +14,7 @@ def create_agent(
         kb_name: List[str] = Body([], examples=[["ChatGPT KB"]]),
         avatar: str = Body("", description="头像图片的Base64编码")
 ) -> BaseResponse:
-    conn = sqlite3.connect('agents.db')
+    conn = sqlite3.connect('mindpilot.db')
     cursor = conn.cursor()
 
     cursor.execute('''
@@ -79,7 +79,7 @@ def create_agent(
 def delete_agent(
         agent_id: int = Body(..., examples=["1"])
 ) -> BaseResponse:
-    conn = sqlite3.connect('agents.db')
+    conn = sqlite3.connect('mindpilot.db')
     cursor = conn.cursor()
 
     if agent_id is None:
@@ -108,7 +108,7 @@ def update_agent(
         kb_name: List[str] = Body([], examples=[["ChatGPT KB"]]),
         avatar: str = Body("", description="头像图片的Base64编码")
 ) -> BaseResponse:
-    conn = sqlite3.connect('agents.db')
+    conn = sqlite3.connect('mindpilot.db')
     cursor = conn.cursor()
 
     if agent_id is None:
@@ -139,7 +139,7 @@ def update_agent(
 
 
 def list_agent() -> ListResponse:
-    conn = sqlite3.connect('agents.db')
+    conn = sqlite3.connect('mindpilot.db')
     cursor = conn.cursor()
 
     cursor.execute('''
@@ -186,7 +186,7 @@ def list_agent() -> ListResponse:
 def get_agent(
         agent_id: int = Query(..., examples=["1"]),
 ):
-    conn = sqlite3.connect('agents.db')
+    conn = sqlite3.connect('mindpilot.db')
     cursor = conn.cursor()
 
     if agent_id is None:
