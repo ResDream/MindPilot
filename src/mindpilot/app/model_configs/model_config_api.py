@@ -1,19 +1,12 @@
 import sqlite3
 from typing import List
 from fastapi import APIRouter, Body, Query
-from ..utils.system_utils import BaseResponse, ListResponse
-
-
-# 初始化数据库连接
-def get_db_connection():
-    conn = sqlite3.connect('model_configs.db')
-    conn.row_factory = sqlite3.Row
-    return conn
+from ..utils.system_utils import BaseResponse, ListResponse, get_mindpilot_db_connection
 
 
 # 创建表结构
 def create_table():
-    conn = get_db_connection()
+    conn = get_mindpilot_db_connection()
     conn.execute('''
         CREATE TABLE IF NOT EXISTS model_configs (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -45,7 +38,7 @@ async def add_model_config(
 
 ):
     create_table()
-    conn = get_db_connection()
+    conn = get_mindpilot_db_connection()
     cursor = conn.cursor()
 
     cursor.execute('''
@@ -83,7 +76,7 @@ async def add_model_config(
 
 async def list_model_configs():
     create_table()
-    conn = get_db_connection()
+    conn = get_mindpilot_db_connection()
     cursor = conn.cursor()
 
     cursor.execute('SELECT * FROM model_configs')
@@ -116,7 +109,7 @@ async def get_model_config(
 
 ):
     create_table()
-    conn = get_db_connection()
+    conn = get_mindpilot_db_connection()
     cursor = conn.cursor()
 
     cursor.execute('SELECT * FROM model_configs WHERE id = ?', (config_id,))
@@ -159,7 +152,7 @@ async def update_model_config(
         }]),
 ):
     create_table()
-    conn = get_db_connection()
+    conn = get_mindpilot_db_connection()
     cursor = conn.cursor()
 
     cursor.execute('SELECT * FROM model_configs WHERE id = ?', (config_id,))
@@ -206,7 +199,7 @@ async def update_model_config(
 
 async def delete_model_config(config_id):
     create_table()
-    conn = get_db_connection()
+    conn = get_mindpilot_db_connection()
     cursor = conn.cursor()
 
     # 首先检查配置是否存在

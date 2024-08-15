@@ -1,8 +1,8 @@
 import sqlite3
 
 
-def get_agent_from_id(agent_id:int):
-    conn = sqlite3.connect('agents.db')
+def get_agent_from_id(agent_id: int):
+    conn = sqlite3.connect('mindpilot.db')
     cursor = conn.cursor()
 
     cursor.execute('SELECT * FROM agents WHERE id = ?', (agent_id,))
@@ -13,7 +13,7 @@ def get_agent_from_id(agent_id:int):
         return None
 
     agent_dict = {
-        "id": agent[0],
+        "agent_id": agent[0],
         "agent_name": agent[1],
         "agent_abstract": agent[2],
         "agent_info": agent[3],

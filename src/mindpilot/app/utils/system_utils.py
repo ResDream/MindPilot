@@ -3,6 +3,7 @@ import logging
 import multiprocessing as mp
 import os
 import socket
+import sqlite3
 import sys
 from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_completed
 from pathlib import Path
@@ -207,3 +208,8 @@ class ListResponse(BaseResponse):
                 "data": ["doc1.docx", "doc2.pdf", "doc3.txt"],
             }
         }
+
+def get_mindpilot_db_connection():
+    conn = sqlite3.connect('mindpilot.db')
+    conn.row_factory = sqlite3.Row
+    return conn

@@ -6,6 +6,7 @@ from .chat_routes import chat_router
 from .tool_routes import tool_router
 from .agent_routes import agent_router
 from .config_routes import config_router
+from .conversation_routes import conversation_router
 
 
 def create_app(run_mode: str = None):
@@ -26,5 +27,6 @@ def create_app(run_mode: str = None):
     app.include_router(tool_router)
     app.include_router(agent_router)
     app.include_router(config_router)
+    app.include_router(conversation_router)
 
     return app
