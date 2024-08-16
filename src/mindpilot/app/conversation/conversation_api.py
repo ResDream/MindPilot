@@ -181,6 +181,9 @@ async def send_messages(
         files: dict = Body({}, description="文件", examples=[{}]),
         text: str = Body("", description="消息内容"),
         tool_config: List[str] = Body([], description="工具配置", examples=[]),
+        temperature: float = Body(..., description="模型温度", examples=[0.8]),
+        max_tokens: int = Body(..., description="模型输出最大长度", examples=[4096]),
+
 ):
     init_conversations_table()
     init_messages_table()
@@ -222,6 +225,11 @@ async def send_messages(
 
     # 获取模型配置
     chat_model_config = get_config_from_id(config_id=config_id)
+    model_key = next(iter(chat_model_config["llm_model"]))
+    chat_model_config["llm_model"][model_key]["temperature"] = temperature
+    chat_model_config["llm_model"][model_key]["max_tokens"] = max_tokens
+
+
 
     # 获取模型输出
     ret = await chat_online(content=text, history=history, chat_model_config=chat_model_config,
