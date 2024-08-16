@@ -10,7 +10,7 @@ conversation_router.post(
 )(add_conversation)
 
 conversation_router.get(
-    "",
+    "s",
     summary="获取conversation列表",
 )(list_conversations)
 
