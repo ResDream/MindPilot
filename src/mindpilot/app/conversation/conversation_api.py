@@ -126,7 +126,7 @@ async def get_conversation(conversation_id: str):
             "message_id": row['id'],
             "agent_status": row['agent_status'],
             "role": row['role'],
-            "content": row['content'],
+            "text": row['content'],
             "files": json.loads(row['files']),
             "timestamp": datetime.fromisoformat(row['timestamp'])
         }
@@ -179,7 +179,7 @@ async def send_messages(
         agent_id: int = Body(0, description="使用agent,0为默认,-1为不使用agent", examples=[0]),
         config_id: int = Body("0", description="模型配置", examples=[1]),
         files: dict = Body({}, description="文件", examples=[{}]),
-        content: str = Body("", description="消息内容"),
+        text: str = Body("", description="消息内容"),
         tool_config: List[str] = Body([], description="工具配置", examples=[]),
 ):
     init_conversations_table()
@@ -210,7 +210,7 @@ async def send_messages(
     # print(history)
 
     # 存放用户输入
-    _, timestamp_user = insert_message(agent_status=0, role=role, content=content, files=json.dumps(files),
+    _, timestamp_user = insert_message(agent_status=0, role=role, content=text, files=json.dumps(files),
                                        conversation_id=conversation_id)
 
     cursor.execute('''
@@ -224,7 +224,7 @@ async def send_messages(
     chat_model_config = get_config_from_id(config_id=config_id)
 
     # 获取模型输出
-    ret = await chat_online(content=content, history=history, chat_model_config=chat_model_config,
+    ret = await chat_online(content=text, history=history, chat_model_config=chat_model_config,
                             tool_config=tool_config, agent_id=agent_id)
 
     response_messages = []
@@ -245,7 +245,7 @@ async def send_messages(
             message_dict = {
                 "message_id": message_id,
                 "agent_status": 7,
-                "content": message_content,
+                "text": message_content,
                 "files": [],
                 "timestamp": timestamp_message
             }
@@ -269,7 +269,7 @@ async def send_messages(
                 message_dict = {
                     "message_id": message_id,
                     "agent_status": 3,
-                    "content": m,
+                    "text": m,
                     "files": [],
                     "timestamp": timestamp_message
                 }
