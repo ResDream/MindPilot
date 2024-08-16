@@ -14,16 +14,16 @@ config_router.get(
 )(list_model_configs)
 
 config_router.get(
-    "{config_id}",
+    "/{config_id}",
     summary="查询单个配置",
 )(get_model_config)
 
 config_router.put(
-    "{config_id}",
+    "/{config_id}",
     summary="更新配置",
 )(update_model_config)
 
 config_router.delete(
-    "{config_id}",
+    "/{config_id}",
     summary="删除配置",
 )(delete_model_config)
