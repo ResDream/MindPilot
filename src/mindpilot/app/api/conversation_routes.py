@@ -15,16 +15,16 @@ conversation_router.get(
 )(list_conversations)
 
 conversation_router.get(
-    "{conversation_id}",
+    "/{conversation_id}",
     summary="获取单个对话详情"
 )(get_conversation)
 
 conversation_router.delete(
-    "{conversation_id}",
+    "/{conversation_id}",
     summary="删除对话"
 )(delete_conversation)
 
 conversation_router.post(
-    "{conversation_id}/messages",
+    "/{conversation_id}/messages",
     summary="发送消息"
 )(send_messages)
