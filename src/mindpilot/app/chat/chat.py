@@ -372,7 +372,7 @@ async def chat_online(
 
     async for chunk in chat_iterator():
         data = json.loads(chunk)
-        print(data)
+        # print(data)
         if data["status"] != AgentStatus.llm_start and data["status"] != AgentStatus.llm_new_token:
             ret.append(data)
 

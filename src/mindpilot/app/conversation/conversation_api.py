@@ -206,10 +206,6 @@ async def send_messages(
             "content": row['content']
         })
 
-    if len(history) == 0:
-        # TODO 总结标题
-        pass
-
     # print(history)
 
     # 存放用户输入
@@ -229,7 +225,21 @@ async def send_messages(
     chat_model_config["llm_model"][model_key]["temperature"] = temperature
     chat_model_config["llm_model"][model_key]["max_tokens"] = max_tokens
 
-
+    if len(history) == 0:
+        summery_prompt = "下面是用户的问题，请总结为不超过八个字的标题。\n" + "用户：" + text + '输出格式为：{"title":"总结的标题"}，除了这个json，不允许输出其他内容。'
+        summery = await chat_online(content=summery_prompt, history=[], chat_model_config=chat_model_config,
+                                    agent_id=-1, tool_config=tool_config)
+        summery_content = summery[0]['choices'][0]['delta']['content']
+        try:
+            summery_content = json.loads(summery_content)["title"]
+            cursor.execute('''
+                    UPDATE conversations
+                    SET is_summarized = ?, title = ?
+                    WHERE conversation_id = ?
+                ''', (True, summery_content, conversation_id))
+            conn.commit()
+        except Exception as e:
+            print(e)
 
     # 获取模型输出
     ret = await chat_online(content=text, history=history, chat_model_config=chat_model_config,
