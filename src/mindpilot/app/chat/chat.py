@@ -17,7 +17,7 @@ from ..callback_handler.agent_callback_handler import (
 )
 from ..chat.utils import History
 from ..configs import MODEL_CONFIG, TOOL_CONFIG, OPENAI_PROMPT, PROMPT_TEMPLATES
-from ..utils.system_utils import get_ChatOpenAI, get_tool, wrap_done, MsgType
+from ..utils.system_utils import get_ChatOpenAI, get_tool, wrap_done, MsgType, get_mindpilot_db_connection
 from ..agent.utils import get_agent_from_id
 
 
@@ -253,7 +253,8 @@ async def chat_online(
         history: List[History],
         chat_model_config: dict,
         tool_config: List[str],
-        agent_id: int
+        agent_id: int,
+        conversation_id: str
 ):
     async def chat_iterator() -> AsyncIterable[OpenAIChatOutput]:
         callback = AgentExecutorAsyncIteratorCallbackHandler()
