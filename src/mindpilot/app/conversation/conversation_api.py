@@ -6,11 +6,13 @@ from fastapi import Body
 from uuid import uuid4
 from datetime import datetime
 import sqlite3
+
+from ..chat.utils import History
 from ..utils.system_utils import BaseResponse, ListResponse, get_mindpilot_db_connection
 from .message import init_messages_table, insert_message, split_message_content
 from ..model_configs.utils import get_config_from_id
 from ..agent.utils import get_agent_from_id
-from ..chat.chat import chat_online
+from ..chat.chat import chat_online, debug_chat_online
 
 
 def init_conversations_table():
@@ -185,6 +187,7 @@ async def send_messages(
         max_tokens: int = Body(..., description="模型输出最大长度", examples=[4096]),
 
 ):
+    # TODO 缺少知识库部分
     init_conversations_table()
     init_messages_table()
     conn = get_mindpilot_db_connection()
@@ -314,5 +317,85 @@ async def send_messages(
         # TODO 这里考虑处理一下message['status']是4但之前一个message['status']不是3的，即agent无法解析的内容
 
     conn.close()
+
+    return BaseResponse(code=200, msg="success", data=response_messages)
+
+
+async def debug_messages(
+        query: str = Body(..., description="用户输入", examples=[""]),
+        history: List[History] = Body(
+            [],
+            description="历史对话",
+            examples=[
+                [
+                    {"role": "user", "content": "你好"},
+                    {"role": "assistant", "content": "您好，我是智能Agent桌面助手MindPilot，请问有什么可以帮您？"},
+                ]
+            ],
+        ),
+        config_id: int = Body("0", description="模型配置", examples=[1]),
+        agent_config: dict = Body(..., description="agent配置", examples=[
+            {
+                "agent_name": "调试助手",
+                "agent_abstract": "",
+                "agent_info": "这是一个用于调试的AI助手",
+                "agent_enable": True,
+                "temperature": 0.7,
+                "max_tokens": 150,
+                "tool_config": ["search_internet", "calculator"]
+            }
+        ])
+):
+    # TODO 缺少知识库部分
+
+    if not agent_config["agent_enable"]:
+        temp_agent_name = agent_config["agent_name"]
+        temp_agent_abstract = agent_config["agent_abstract"]
+        temp_agent_info = agent_config["agent_info"]
+        agent_prompt = "Your name is " + temp_agent_name + "." + temp_agent_abstract + ". Below is your detailed information:" + temp_agent_info + "."
+        history.append({"role": "user", "content": agent_prompt})
+
+    # 获取模型配置
+    chat_model_config = get_config_from_id(config_id=config_id)
+    model_key = next(iter(chat_model_config["llm_model"]))
+    chat_model_config["llm_model"][model_key]["temperature"] = agent_config['temperature']
+    chat_model_config["llm_model"][model_key]["max_tokens"] = agent_config['max_tokens']
+
+    # 获取模型输出
+    ret = await debug_chat_online(content=query, history=history, chat_model_config=chat_model_config,
+                                  tool_config=agent_config['tool_config'], agent_config=agent_config)
+
+    response_messages = []
+    for message in ret:
+        if message['status'] == 7:
+            message_role = message['choices'][0]['role']
+            message_content = "Observation:\n" + message['choices'][0]['delta']['tool_calls'][0]['tool_output']
+            timestamp = datetime.now().isoformat()
+            message_dict = {
+                "message_id": 0,
+                "agent_status": 7,
+                "text": message_content,
+                "files": [],
+                "timestamp": timestamp
+            }
+            response_messages.append(message_dict)
+
+        if message['status'] == 3:
+            message_role = message['choices'][0]['role']
+            message_content = message['choices'][0]['delta']['content']
+            message_list = split_message_content(message_content)
+            for m in message_list:
+                timestamp = datetime.now().isoformat()
+                message_dict = {
+                    "message_id": 0,
+                    "agent_status": 3,
+                    "text": m,
+                    "files": [],
+                    "timestamp": timestamp
+                }
+
+                response_messages.append(message_dict)
+
+        # TODO 这里考虑处理一下message['status']是4但之前一个message['status']不是3的，即agent无法解析的内容
 
     return BaseResponse(code=200, msg="success", data=response_messages)
