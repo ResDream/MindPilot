@@ -120,6 +120,10 @@ def main():
     print亮蓝(f"当前工作目录：{cwd}")
     print亮蓝(f"OpenAPI 文档地址：http://{HOST}:{PORT}/docs")
 
+    from app.knowledge_base.migrate import create_tables
+
+    create_tables()
+
     if sys.version_info < (3, 10):
         loop = asyncio.get_event_loop()
     else:
