@@ -1,12 +1,7 @@
 import asyncio
 import logging
-import multiprocessing as mp
-import os
-import socket
 import sqlite3
-import sys
-from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_completed
-from pathlib import Path
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import (
     Any,
     Awaitable,
@@ -14,29 +9,14 @@ from typing import (
     Dict,
     Generator,
     List,
-    Literal,
-    Optional,
-    Tuple,
     Union,
 )
 
-import httpx
-import openai
-from fastapi import FastAPI
 from langchain.tools import BaseTool
-from langchain_core.embeddings import Embeddings
 from langchain_openai.chat_models import ChatOpenAI
-from langchain_openai.llms import OpenAI
-
-# from chatchat.configs import (
-#     DEFAULT_EMBEDDING_MODEL,
-#     DEFAULT_LLM_MODEL,
-#     HTTPX_DEFAULT_TIMEOUT,
-#     MODEL_PLATFORMS,
-#     TEMPERATURE,
-#     log_verbose,
-# )
 from .pydantic_v2 import BaseModel, Field
+from ..configs import DEFAULT_EMBEDDING_MODEL
+from langchain_core.embeddings import Embeddings
 
 logger = logging.getLogger()
 
@@ -209,7 +189,60 @@ class ListResponse(BaseResponse):
             }
         }
 
+
 def get_mindpilot_db_connection():
     conn = sqlite3.connect('mindpilot.db')
     conn.row_factory = sqlite3.Row
     return conn
+
+
+def run_in_thread_pool(
+        func: Callable,
+        params: List[Dict] = [],
+) -> Generator:
+    """
+    在线程池中批量运行任务，并将运行结果以生成器的形式返回。
+    请确保任务中的所有操作是线程安全的，任务函数请全部使用关键字参数。
+    """
+    tasks = []
+    with ThreadPoolExecutor() as pool:
+        for kwargs in params:
+            tasks.append(pool.submit(func, **kwargs))
+
+        for obj in as_completed(tasks):
+            try:
+                yield obj.result()
+            except Exception as e:
+                logger.error(f"error in sub thread: {e}", exc_info=True)
+
+def get_Embeddings(
+    embed_model: str = DEFAULT_EMBEDDING_MODEL,
+) -> Embeddings:
+
+    from ..knowledge_base.embedding.localai_embeddings import (
+        LocalAIEmbeddings,
+    )
+
+    params = dict(model=embed_model)
+    try:
+        params.update(
+            openai_api_base=f"http://127.0.0.1:7890/v1",
+            openai_api_key="EMPTY",
+        )
+        return LocalAIEmbeddings(**params)
+    except Exception as e:
+        logger.error(
+            f"failed to create Embeddings for model: {embed_model}.", exc_info=True
+        )
+
+
+def check_embed_model(embed_model: str = DEFAULT_EMBEDDING_MODEL) -> bool:
+    embeddings = get_Embeddings(embed_model=embed_model)
+    try:
+        embeddings.embed_query("this is a test")
+        return True
+    except Exception as e:
+        logger.error(
+            f"failed to access embed model '{embed_model}': {e}", exc_info=True
+        )
+        return False
