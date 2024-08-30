@@ -219,17 +219,23 @@ def get_Embeddings(
     embed_model: str = DEFAULT_EMBEDDING_MODEL,
 ) -> Embeddings:
 
-    from ..knowledge_base.embedding.localai_embeddings import (
-        LocalAIEmbeddings,
-    )
+    # from ..knowledge_base.embedding.localai_embeddings import (
+    #     LocalAIEmbeddings,
+    # )
+    #
+    # params = dict(model=embed_model)
+    from langchain_huggingface import HuggingFaceEmbeddings
+    embedding_model_name = r'maidalun1020/bce-embedding-base_v1'
+    embedding_model_kwargs = {'device': 'cuda:0'}
+    embedding_encode_kwargs = {'batch_size': 32, 'normalize_embeddings': True}
 
-    params = dict(model=embed_model)
     try:
-        params.update(
-            openai_api_base=f"http://127.0.0.1:7890/v1",
-            openai_api_key="EMPTY",
+        embed_model = HuggingFaceEmbeddings(
+            model_name=embedding_model_name,
+            model_kwargs=embedding_model_kwargs,
+            encode_kwargs=embedding_encode_kwargs,
         )
-        return LocalAIEmbeddings(**params)
+        return embed_model
     except Exception as e:
         logger.error(
             f"failed to create Embeddings for model: {embed_model}.", exc_info=True

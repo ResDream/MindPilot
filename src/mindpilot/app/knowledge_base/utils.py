@@ -10,7 +10,7 @@ import chardet
 import langchain_community.document_loaders
 from langchain.docstore.document import Document
 from langchain.text_splitter import MarkdownHeaderTextSplitter, TextSplitter
-from langchain_community.document_loaders import JSONLoader, TextLoader
+from langchain_community.document_loaders import JSONLoader, TextLoader, PyPDFLoader
 
 from ..configs import (
     CHUNK_SIZE,
@@ -108,13 +108,14 @@ LOADER_DICT = {
     "JSONLinesLoader": [".jsonl"],
     "CSVLoader": [".csv"],
     # "FilteredCSVLoader": [".csv"], 如果使用自定义分割csv
-    "RapidOCRPDFLoader": [".pdf"],
-    "RapidOCRDocLoader": [".docx", ".doc"],
-    "RapidOCRPPTLoader": [
-        ".ppt",
-        ".pptx",
-    ],
-    "RapidOCRLoader": [".png", ".jpg", ".jpeg", ".bmp"],
+    # "RapidOCRPDFLoader": [".pdf"],
+    # "RapidOCRDocLoader": [".docx", ".doc"],
+    # "RapidOCRPPTLoader": [
+    #     ".ppt",
+    #     ".pptx",
+    # ],
+    # "RapidOCRLoader": [".png", ".jpg", ".jpeg", ".bmp"],
+    "PyPDFLoader": [".pdf"],
     "UnstructuredFileLoader": [
         ".eml",
         ".msg",

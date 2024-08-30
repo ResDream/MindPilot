@@ -1,18 +1,18 @@
 TOOL_CONFIG = {
-        # "search_local_knowledgebase": {
-        #     "use": False,
-        #     "top_k": 3,
-        #     "score_threshold": 1.0,
-        #     "conclude_prompt": {
-        #         "with_result": '<指令>根据已知信息，简洁和专业的来回答问题。如果无法从中得到答案，请说 "根据已知信息无法回答该问题"，'
-        #                        "不允许在答案中添加编造成分，答案请使用中文。 </指令>\n"
-        #                        "<已知信息>{{ context }}</已知信息>\n"
-        #                        "<问题>{{ question }}</问题>\n",
-        #         "without_result": "请你根据我的提问回答我的问题:\n"
-        #                           "{{ question }}\n"
-        #                           "请注意，你必须在回答结束后强调，你的回答是根据你的经验回答而不是参考资料回答的。\n",
-        #     },
-        # },
+        "search_local_knowledgebase": {
+            "use": False,
+            "top_k": 3,
+            "score_threshold": 1.0,
+            "conclude_prompt": {
+                "with_result": '<指令>根据已知信息，简洁和专业的来回答问题。如果无法从中得到答案，请说 "根据已知信息无法回答该问题"，'
+                               "不允许在答案中添加编造成分，答案请使用中文。 </指令>\n"
+                               "<已知信息>{{ context }}</已知信息>\n"
+                               "<问题>{{ question }}</问题>\n",
+                "without_result": "请你根据我的提问回答我的问题:\n"
+                                  "{{ question }}\n"
+                                  "请注意，你必须在回答结束后强调，你的回答是根据你的经验回答而不是参考资料回答的。\n",
+            },
+        },
         "search_internet": {
             "use": False,
             "search_engine_name": "bing",
