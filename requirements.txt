@@ -30,3 +30,6 @@ elasticsearch~=8.15.0
 tenacity~=8.5.0
 pymilvus~=2.4.5
 python-dateutil~=2.9.0post0
+unstructured~=0.15.8
+rank_bm25~=0.2.2
+langchain-huggingface~=0.0.3

@@ -110,4 +110,4 @@ TEXT_SPLITTER_NAME = "ChineseRecursiveTextSplitter"
 # Embedding模型定制词语的词表文件
 EMBEDDING_KEYWORD_FILE = "embedding_keywords.txt"
 
-DEFAULT_EMBEDDING_MODEL = "bce-embedding-base_v1"
+DEFAULT_EMBEDDING_MODEL = "maidalun1020/bce-embedding-base_v1"

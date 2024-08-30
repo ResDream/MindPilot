@@ -10,6 +10,7 @@ import argparse
 from fastapi import FastAPI
 from app.configs import HOST, PORT
 from src.mindpilot.app.utils.colorful import print亮蓝
+os.environ['HF_ENDPOINT'] = "https://hf-mirror.com"
 
 
 logger = logging.getLogger()

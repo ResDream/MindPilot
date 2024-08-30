@@ -14,7 +14,7 @@ from ..configs import (
     OVERLAP_SIZE,
     SCORE_THRESHOLD,
     VECTOR_SEARCH_TOP_K,
-    ZH_TITLE_ENHANCE,
+    ZH_TITLE_ENHANCE, DEFAULT_EMBEDDING_MODEL,
 )
 from .db.repository.knowledge_file_repository import get_file_detail
 from .kb_service.base import (
@@ -59,7 +59,11 @@ def search_docs(
         if query:
             docs = kb.search_docs(query, top_k, score_threshold)
             # data = [DocumentWithVSId(**x[0].dict(), score=x[1], id=x[0].metadata.get("id")) for x in docs]
-            data = [DocumentWithVSId(**x.dict(), id=x.metadata.get("id")) for x in docs]
+            for x in docs:
+                doc_dict = x.dict()
+                doc_id = doc_dict.pop('id', None)  # 移除 doc_dict 中的 'id' 字段
+                data.append(DocumentWithVSId(**doc_dict, id=x.metadata.get("id")))
+            # data = [DocumentWithVSId(**x.dict(), id=x.metadata.get("id")) for x in docs]
         elif file_name or metadata:
             data = kb.list_docs(file_name=file_name, metadata=metadata)
             for d in data:
@@ -382,12 +386,12 @@ def recreate_vector_store(
     knowledge_base_name: str = Body(..., examples=["samples"]),
     allow_empty_kb: bool = Body(True),
     vs_type: str = Body(DEFAULT_VS_TYPE),
-    embed_model: str = Body(...),
     chunk_size: int = Body(CHUNK_SIZE, description="知识库中单段文本最大长度"),
     chunk_overlap: int = Body(OVERLAP_SIZE, description="知识库中相邻文本重合长度"),
     zh_title_enhance: bool = Body(ZH_TITLE_ENHANCE, description="是否开启中文标题加强"),
     not_refresh_vs_cache: bool = Body(False, description="暂不保存向量库（用于FAISS）"),
 ):
+    embed_model = DEFAULT_EMBEDDING_MODEL
     """
     recreate vector store from the content.
     this is usefull when user can copy files to content folder directly instead of upload through network.

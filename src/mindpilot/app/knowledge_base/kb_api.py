@@ -5,6 +5,7 @@ from fastapi import Body
 from .db.repository.knowledge_base_repository import list_kbs_from_db
 from .kb_service.base import KBServiceFactory
 from .utils import validate_kb_name
+from ..configs import DEFAULT_EMBEDDING_MODEL
 from ..utils.system_utils import BaseResponse, ListResponse, logger
 
 
@@ -17,8 +18,8 @@ def create_kb(
     knowledge_base_name: str = Body(..., examples=["samples"]),
     vector_store_type: str = Body("faiss"),
     kb_info: str = Body("", description="知识库内容简介，用于Agent选择知识库。"),
-    embed_model: str = Body(..., examples=["bce-embedding-base_v1", "bge-large-zh-v1.5"]),
 ) -> BaseResponse:
+    embed_model = DEFAULT_EMBEDDING_MODEL
     # Create selected knowledge base
     if not validate_kb_name(knowledge_base_name):
         return BaseResponse(code=403, msg="Don't attack me")
