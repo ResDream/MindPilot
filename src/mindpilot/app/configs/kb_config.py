@@ -83,7 +83,7 @@ kbs_config = {
 # TextSplitter配置项，如果你不明白其中的含义，就不要修改。
 text_splitter_dict = {
     "ChineseRecursiveTextSplitter": {
-        "source": "",  # 选择tiktoken则使用openai的方法 "huggingface"
+        "source": "",
         "tokenizer_name_or_path": "",
     },
     "SpacyTextSplitter": {

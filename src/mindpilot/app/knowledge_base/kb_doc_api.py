@@ -3,6 +3,7 @@ import os
 import urllib
 from typing import Dict, List
 
+import chardet
 from fastapi import Body, File, Form, Query, UploadFile
 from fastapi.responses import FileResponse
 from langchain.docstore.document import Document
@@ -107,6 +108,11 @@ def _save_files_in_thread(
             data = {"knowledge_base_name": knowledge_base_name, "file_name": filename}
 
             file_content = file.file.read()  # 读取上传文件的内容
+            # 检测文件编码
+            detected_encoding = chardet.detect(file_content)['encoding']
+            if detected_encoding and 'gb2312' in detected_encoding.lower():
+                file_content = file_content.decode('GB18030').encode('utf-8')
+
             if (
                 os.path.isfile(file_path)
                 and not override

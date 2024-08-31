@@ -33,3 +33,4 @@ python-dateutil~=2.9.0post0
 unstructured~=0.15.8
 rank_bm25~=0.2.2
 langchain-huggingface~=0.0.3
+python-magic-bin~=0.4.14
