@@ -107,14 +107,14 @@ LOADER_DICT = {
     "JSONLoader": [".json"],
     "JSONLinesLoader": [".jsonl"],
     "CSVLoader": [".csv"],
-    # "FilteredCSVLoader": [".csv"], 如果使用自定义分割csv
-    # "RapidOCRPDFLoader": [".pdf"],
-    # "RapidOCRDocLoader": [".docx", ".doc"],
-    # "RapidOCRPPTLoader": [
-    #     ".ppt",
-    #     ".pptx",
-    # ],
-    # "RapidOCRLoader": [".png", ".jpg", ".jpeg", ".bmp"],
+    "FilteredCSVLoader": [".csv"],  # 如果使用自定义分割csv
+    "RapidOCRPDFLoader": [".pdf"],
+    "RapidOCRDocLoader": [".docx", ".doc"],
+    "RapidOCRPPTLoader": [
+        ".ppt",
+        ".pptx",
+    ],
+    "RapidOCRLoader": [".png", ".jpg", ".jpeg", ".bmp"],
     "PyPDFLoader": [".pdf"],
     "UnstructuredFileLoader": [
         ".eml",
@@ -186,7 +186,7 @@ def get_loader(loader_name: str, file_path: str, loader_kwargs: Dict = None):
             "RapidOCRPPTLoader",
         ]:
             document_loaders_module = importlib.import_module(
-                "chatchat.server.file_rag.document_loaders"
+                "app.knowledge_base.file_rag.document_loaders"
             )
         else:
             document_loaders_module = importlib.import_module(
@@ -221,7 +221,7 @@ def get_loader(loader_name: str, file_path: str, loader_kwargs: Dict = None):
         loader_kwargs.setdefault("jq_schema", ".")
         loader_kwargs.setdefault("text_content", False)
 
-    loader = DocumentLoader(file_path, **loader_kwargs)
+    loader = DocumentLoader(str(Path(file_path).resolve()), **loader_kwargs)
     return loader
 
 
@@ -467,18 +467,3 @@ def files2docs_in_thread(
         func=files2docs_in_thread_file2docs, params=kwargs_list
     ):
         yield result
-
-
-if __name__ == "__main__":
-    from pprint import pprint
-
-    kb_file = KnowledgeFile(
-        filename="E:\\LLM\\Data\\Test.md", knowledge_base_name="samples"
-    )
-    # kb_file.text_splitter_name = "RecursiveCharacterTextSplitter"
-    kb_file.text_splitter_name = "MarkdownHeaderTextSplitter"
-    docs = kb_file.file2docs()
-    # pprint(docs[-1])
-    texts = kb_file.docs2texts(docs)
-    for text in texts:
-        print(text)
