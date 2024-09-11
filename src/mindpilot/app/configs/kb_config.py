@@ -45,6 +45,8 @@ KB_INFO = {
 }
 
 CHATCHAT_ROOT = str(Path(__file__).absolute().parent.parent.parent)
+CACHE_DIR = str(Path(__file__).absolute().parent.parent.parent.parent.parent)
+CACHE_DIR = os.path.join(CACHE_DIR, "cache")
 
 KB_ROOT_PATH = os.path.join(CHATCHAT_ROOT, "knowledge_base")
 

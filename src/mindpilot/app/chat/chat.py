@@ -16,9 +16,13 @@ from ..callback_handler.agent_callback_handler import (
     AgentStatus,
 )
 from ..chat.utils import History
-from ..configs import MODEL_CONFIG, TOOL_CONFIG, OPENAI_PROMPT, PROMPT_TEMPLATES
+from ..configs import MODEL_CONFIG, TOOL_CONFIG, OPENAI_PROMPT, PROMPT_TEMPLATES, CACHE_DIR
 from ..utils.system_utils import get_ChatOpenAI, get_tool, wrap_done, MsgType, get_mindpilot_db_connection
 from ..agent.utils import get_agent_from_id
+
+from mindnlp.transformers import AutoModelForCausalLM, AutoTokenizer
+import mindspore
+import time
 
 
 def create_models_from_config(configs, callbacks, stream):
@@ -502,3 +506,21 @@ async def debug_chat_online(
             ret.append(data)
 
     return ret
+
+
+async def chat_outline(
+        content: str,
+        history: List[History],
+        chat_model_config: dict,
+):
+    model_name = next(iter(chat_model_config["llm_model"]))
+    temperature = chat_model_config["llm_model"][model_name]["temperature"]
+    max_tokens = chat_model_config["llm_model"][model_name]["max_tokens"]
+
+    path = 'openbmb/MiniCPM-2B-dpo-bf16'
+    tokenizer = AutoTokenizer.from_pretrained(path, cache_dir=CACHE_DIR)
+    model = AutoModelForCausalLM.from_pretrained(path, ms_dtype=mindspore.float16, cache_dir=CACHE_DIR)
+
+    response, history = model.chat(tokenizer, content, history=history, temperature=temperature, top_p=0.9,
+                                   repetition_penalty=1.02)
+    return response
