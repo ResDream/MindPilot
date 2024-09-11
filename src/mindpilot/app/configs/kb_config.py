@@ -105,7 +105,7 @@ text_splitter_dict = {
 }
 
 # TEXT_SPLITTER 名称
-TEXT_SPLITTER_NAME = "ChineseRecursiveTextSplitter"
+TEXT_SPLITTER_NAME = "RecursiveCharacterTextSplitter"
 
 # Embedding模型定制词语的词表文件
 EMBEDDING_KEYWORD_FILE = "embedding_keywords.txt"

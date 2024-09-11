@@ -22,7 +22,7 @@ __all__ = [
     "DEFAULT_SEARCH_ENGINE",
     "SEARCH_ENGINE_TOP_K",
     "ZH_TITLE_ENHANCE",
-    # "PDF_OCR_THRESHOLD",
+    "PDF_OCR_THRESHOLD",
     "KB_INFO",
     "CHATCHAT_ROOT",
     "KB_ROOT_PATH",

@@ -6,8 +6,8 @@ import tqdm
 from langchain_community.document_loaders.unstructured import UnstructuredFileLoader
 from PIL import Image
 
-from chatchat.configs import PDF_OCR_THRESHOLD
-from chatchat.server.file_rag.document_loaders.ocr import get_ocr
+from ....configs import PDF_OCR_THRESHOLD
+from .ocr import get_ocr
 
 
 class RapidOCRPDFLoader(UnstructuredFileLoader):
