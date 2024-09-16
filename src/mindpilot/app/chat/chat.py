@@ -517,7 +517,10 @@ async def chat_outline(
     temperature = chat_model_config["llm_model"][model_name]["temperature"]
     max_tokens = chat_model_config["llm_model"][model_name]["max_tokens"]
 
-    path = 'openbmb/MiniCPM-2B-dpo-bf16'
+    if model_name == "MiniCPM-2B":
+        path = 'openbmb/MiniCPM-2B-dpo-bf16'
+    else:
+        path = 'Qwen/Qwen2-0.5B-Instruct'
     tokenizer = AutoTokenizer.from_pretrained(path, cache_dir=CACHE_DIR)
     model = AutoModelForCausalLM.from_pretrained(path, ms_dtype=mindspore.float16, cache_dir=CACHE_DIR)
 
