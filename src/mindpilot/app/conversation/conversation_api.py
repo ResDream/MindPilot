@@ -240,7 +240,7 @@ async def send_messages(
 
         message_dict = {
             "message_id": message_id,
-            "agent_status": 3,
+            "agent_status": -1,
             "text": ret,
             "files": [],
             "timestamp": timestamp_message
@@ -348,6 +348,10 @@ async def send_messages(
 
         conn.close()
 
+        if agent_id == -1:
+            for response in response_messages:
+                response['agent_status'] = -1
+
         return BaseResponse(code=200, msg="success", data=response_messages)
 
 
@@ -427,5 +431,9 @@ async def debug_messages(
                 response_messages.append(message_dict)
 
         # TODO 这里考虑处理一下message['status']是4但之前一个message['status']不是3的，即agent无法解析的内容
+
+    if not agent_config['agent_enable']:
+        for response in response_messages:
+            response['agent_status'] = -1
 
     return BaseResponse(code=200, msg="success", data=response_messages)
