@@ -524,6 +524,23 @@ async def chat_outline(
     tokenizer = AutoTokenizer.from_pretrained(path, cache_dir=CACHE_DIR)
     model = AutoModelForCausalLM.from_pretrained(path, ms_dtype=mindspore.float16, cache_dir=CACHE_DIR)
 
-    response, history = model.chat(tokenizer, content, history=history, temperature=temperature, top_p=0.9,
-                                   repetition_penalty=1.02)
+    start_time = time.time()
+    if model_name == "MiniCPM-2B":
+        response, history = model.chat(tokenizer, content, history=history, temperature=temperature, top_p=0.9,
+                                       repetition_penalty=1.02)
+    else:
+        inputs = tokenizer(content, return_tensors="ms")
+        outputs = model.generate(
+            inputs.input_ids,
+            max_length=max_tokens,
+            temperature=temperature,
+            top_p=0.9,
+            repetition_penalty=1.02,
+        )
+        response = tokenizer.decode(outputs[0], skip_special_tokens=True)
+    end_time = time.time()
+    generation_time = end_time - start_time
+    print(f"Response generated in {generation_time:.2f} seconds")
+
     return response
+
