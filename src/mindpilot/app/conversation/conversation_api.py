@@ -256,8 +256,10 @@ async def send_messages(
         chat_model_config["llm_model"][model_key]["temperature"] = temperature
         chat_model_config["llm_model"][model_key]["max_tokens"] = max_tokens
 
-        is_summery = False
+        cursor.execute('''SELECT is_summarized FROM conversations WHERE conversation_id = ?''', (conversation_id,))
+        is_summery = bool(cursor.fetchone()[0])
 
+        agent_prompt = ""
         if agent_id == -1:
             cursor.execute('''SELECT agent_id FROM conversations WHERE conversation_id = ?''', (conversation_id,))
             temp_agent_id = cursor.fetchone()[0]
@@ -268,12 +270,11 @@ async def send_messages(
                 temp_agent_info = temp_agent["agent_info"]
                 agent_prompt = "Your name is " + temp_agent_name + "." + temp_agent_abstract + ". Below is your detailed information:" + temp_agent_info + "."
                 history.append({"role": "user", "content": agent_prompt})
-                is_summery = True
 
-        if len(history) == 0 or is_summery == True:
+        if is_summery is False:
             if len(history) == 0:
                 summery_prompt = "下面是用户的问题，请总结为不超过八个字的标题。\n" + "用户：" + text + '输出格式为：{"title":"总结的标题"}，除了这个json，不允许输出其他内容。'
-            if is_summery == True:
+            else:
                 summery_prompt = "下面是用户的问题，请总结为不超过八个字的标题。\n" + "用户：" + agent_prompt + text + '输出格式为：{"title":"总结的标题"}，除了这个json，不允许输出其他内容。'
             summery = await chat_online(content=summery_prompt, history=[], chat_model_config=chat_model_config,
                                         agent_id=-1, tool_config=tool_config, conversation_id=conversation_id)
@@ -380,8 +381,6 @@ async def debug_messages(
             }
         ])
 ):
-    # TODO 缺少知识库部分
-
     if not agent_config["agent_enable"]:
         temp_agent_name = agent_config["agent_name"]
         temp_agent_abstract = agent_config["agent_abstract"]
@@ -396,44 +395,59 @@ async def debug_messages(
     chat_model_config["llm_model"][model_key]["max_tokens"] = agent_config['max_tokens']
 
     # 获取模型输出
-    ret = await debug_chat_online(content=query, history=history, chat_model_config=chat_model_config,
-                                  tool_config=agent_config['tool_config'], agent_config=agent_config)
+    if chat_model_config["platform"] != "LOCAL":
+        ret = await debug_chat_online(content=query, history=history, chat_model_config=chat_model_config,
+                                      tool_config=agent_config['tool_config'], agent_config=agent_config)
 
-    response_messages = []
-    for message in ret:
-        if message['status'] == 7:
-            message_role = message['choices'][0]['role']
-            message_content = "Observation:\n" + message['choices'][0]['delta']['tool_calls'][0]['tool_output']
-            timestamp = datetime.now().isoformat()
-            message_dict = {
-                "message_id": 0,
-                "agent_status": 7,
-                "text": message_content,
-                "files": [],
-                "timestamp": timestamp
-            }
-            response_messages.append(message_dict)
-
-        if message['status'] == 3:
-            message_role = message['choices'][0]['role']
-            message_content = message['choices'][0]['delta']['content']
-            message_list = split_message_content(message_content)
-            for m in message_list:
+        response_messages = []
+        for message in ret:
+            if message['status'] == 7:
+                message_role = message['choices'][0]['role']
+                message_content = "Observation:\n" + message['choices'][0]['delta']['tool_calls'][0]['tool_output']
                 timestamp = datetime.now().isoformat()
                 message_dict = {
                     "message_id": 0,
-                    "agent_status": 3,
-                    "text": m,
+                    "agent_status": 7,
+                    "text": message_content,
                     "files": [],
                     "timestamp": timestamp
                 }
-
                 response_messages.append(message_dict)
 
-        # TODO 这里考虑处理一下message['status']是4但之前一个message['status']不是3的，即agent无法解析的内容
+            if message['status'] == 3:
+                message_role = message['choices'][0]['role']
+                message_content = message['choices'][0]['delta']['content']
+                message_list = split_message_content(message_content)
+                for m in message_list:
+                    timestamp = datetime.now().isoformat()
+                    message_dict = {
+                        "message_id": 0,
+                        "agent_status": 3,
+                        "text": m,
+                        "files": [],
+                        "timestamp": timestamp
+                    }
 
-    if not agent_config['agent_enable']:
-        for response in response_messages:
-            response['agent_status'] = -1
+                    response_messages.append(message_dict)
 
-    return BaseResponse(code=200, msg="success", data=response_messages)
+            # TODO 这里考虑处理一下message['status']是4但之前一个message['status']不是3的，即agent无法解析的内容
+
+        if not agent_config['agent_enable']:
+            for response in response_messages:
+                response['agent_status'] = -1
+
+        return BaseResponse(code=200, msg="success", data=response_messages)
+    else:
+        ret = await chat_outline(content=query, history=history, chat_model_config=chat_model_config)
+
+        timestamp = datetime.now().isoformat()
+        message_dict = {
+            "message_id": 0,
+            "agent_status": -1,
+            "text": ret,
+            "files": [],
+            "timestamp": timestamp
+        }
+        response_messages = [message_dict]
+
+        return BaseResponse(code=200, msg="success", data=response_messages)

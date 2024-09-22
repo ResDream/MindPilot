@@ -3,6 +3,7 @@ import logging
 import multiprocessing
 import multiprocessing as mp
 import os
+import sqlite3
 import sys
 from contextlib import asynccontextmanager
 from multiprocessing import Process
@@ -10,6 +11,7 @@ import argparse
 from fastapi import FastAPI
 from app.configs import HOST, PORT
 from src.mindpilot.app.utils.colorful import print亮蓝
+from app.configs import KB_INFO
 os.environ['HF_ENDPOINT'] = "https://hf-mirror.com"
 
 
@@ -124,6 +126,45 @@ def main():
     from app.knowledge_base.migrate import create_tables
 
     create_tables()
+
+    conn = sqlite3.connect('mindpilot.db')
+    cursor = conn.cursor()
+
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS agents (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            agent_name TEXT NOT NULL,
+            agent_abstract TEXT,
+            agent_info TEXT,
+            temperature REAL,
+            max_tokens INTEGER,
+            tool_config TEXT,
+            kb_name TEXT,
+            avatar TEXT
+        )
+        ''')
+    conn.commit()
+
+    default_agents = [
+        {"id": 0, "agent_name": "默认agent", "agent_abstract": "", "agent_info": "", "temperature": 0.8, "max_tokens": 4096, "tool_config": "arxiv,calculate,search_internet,search_local_knowledgebase,weather_check,shell,wolfram", "kb_name": "", "avatar": ""},
+        {"id": -1, "agent_name": "对话模型", "agent_abstract": "", "agent_info": "", "temperature": 0.8, "max_tokens": 4096, "tool_config": "", "kb_name": "", "avatar": ""}
+    ]
+
+    for agent in default_agents:
+        cursor.execute('SELECT id FROM agents WHERE id = ?', (agent["id"],))
+        if not cursor.fetchone():
+            cursor.execute('''
+            INSERT INTO agents (id, agent_name, agent_abstract, agent_info, temperature, max_tokens, tool_config, kb_name, avatar)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ''', (agent["id"], agent["agent_name"], agent["agent_abstract"], agent["agent_info"], agent["temperature"], agent["max_tokens"], agent["tool_config"], agent["kb_name"], agent["avatar"]))
+            conn.commit()
+
+    KB_INFO = {}
+    cursor.execute('SELECT kb_name,kb_info FROM knowledge_base')
+    for kb_name, kb_info in cursor.fetchall():
+        KB_INFO[kb_name] = kb_info
+
+    conn.close()
 
     if sys.version_info < (3, 10):
         loop = asyncio.get_event_loop()
