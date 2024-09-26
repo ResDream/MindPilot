@@ -1,0 +1,10 @@
+node_modules
+dist
+out
+.DS_Store
+*.log*
+
+# 项目排除路径
+/src/preload/index.d.ts
+/.idea
+/.vscode
