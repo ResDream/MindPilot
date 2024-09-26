@@ -14,13 +14,16 @@
 - **Hardware Compatibility** 💻: Supports CPU, GPU, and Ascend devices.
 
 ## Installation
+- Clone
+   ```bash
+    git clone https://github.com/ResDream/MindPilot.git
+   ```
 - Frontend 
    ```bash
   # Installation
    cd MindPilotUI
    yarn
-   ```
-     ```bash
+  
   # Build for Specific Platforms:
    # For windows
     $ yarn build:win
@@ -34,9 +37,6 @@
   
 - Backend 
     ```bash
-    # Clone the repository
-    git clone https://github.com/ResDream/MindPilot.git
-    
     # Install dependencies
     pip install -r requirements.txt
     ```
