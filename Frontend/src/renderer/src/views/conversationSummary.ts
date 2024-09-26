@@ -21,8 +21,8 @@ export const conversationSummary = async (chatConversation: string) => {
     agent_enable: false,
     tool_config: [],
     chat_model_config: {
-      api_key: "sk-cERDW9Fr2ujq8D2qYck9cpc9MtPytN26466bunfYXZVZWV7Y",
-      base_url: "https://api.chatanywhere.tech/v1/",
+      api_key: "",
+      base_url: "",
       is_openai: true,
       llm_model: {
         "gpt-4o": {

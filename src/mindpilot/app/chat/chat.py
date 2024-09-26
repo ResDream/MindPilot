@@ -99,8 +99,8 @@ async def chat(
         chat_model_config: dict = Body({}, description="LLM 模型配置", examples=[{
             "platform": "OpenAI",
             "is_openai": True,
-            "base_url": "https://api.chatanywhere.tech/v1/",
-            "api_key": "sk-cERDW9Fr2ujq8D2qYck9cpc9MtPytN26466bunfYXZVZWV7Y",
+            "base_url": "",
+            "api_key": "",
             "llm_model": {
                 "gpt-4o-mini": {
                     "temperature": 0.8,
