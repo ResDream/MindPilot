@@ -21,7 +21,7 @@
 - Frontend 
    ```bash
   # Installation
-   cd MindPilotUI
+   cd Frontend
    yarn
   
   # Build for Specific Platforms:
@@ -46,7 +46,7 @@
 1. **Start MindPilot**:
    ```bash
    # Frontend
-   cd MindPilotUI
+   cd Frontend
    yarn dev
    
    # Backend
