@@ -27,8 +27,8 @@ def create_table():
 async def add_model_config(
         config_name: str = Body(..., description="配置名称", examples=["gpt-4o-mini"]),
         platform: str = Body("", description="模型平台", examples=["OpenAI"]),
-        base_url: str = Body("", examples=["https://api.chatanywhere.tech/v1/"]),
-        api_key: str = Body("", examples=["sk-cERDW9Fr2ujq8D2qYck9cpc9MtPytN26466bunfYXZVZWV7Y"]),
+        base_url: str = Body("", examples=[""]),
+        api_key: str = Body("", examples=[""]),
         llm_model: dict = Body({}, description="LLM 模型配置", examples=[{
             "model": "gpt-4o-mini",
             "callbacks": True,
@@ -142,8 +142,8 @@ async def update_model_config(
         config_id: int,
         config_name: str = Body(..., description="配置名称", examples=["gpt-4o-mini"]),
         platform: str = Body("", description="模型平台", examples=["OpenAI"]),
-        base_url: str = Body("", examples=["https://api.chatanywhere.tech/v1/"]),
-        api_key: str = Body("", examples=["sk-cERDW9Fr2ujq8D2qYck9cpc9MtPytN26466bunfYXZVZWV7Y"]),
+        base_url: str = Body("", examples=[""]),
+        api_key: str = Body("", examples=[""]),
         llm_model: dict = Body({}, description="LLM 模型配置", examples=[{
             "model": "gpt-4o-mini",
             "callbacks": True,
