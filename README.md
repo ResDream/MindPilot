@@ -1,5 +1,9 @@
 # <center>MindPilot 🚀
+<div align="center">
 
+**Language**: [English](README.md) | [中文](README-zh.md)
+
+</div>
 
 ## Introduction
 
@@ -54,10 +58,26 @@
    python main.py
    ```
 
-2. **Create and Configure Agents** 🛠️:
+2. **Search Config**:
+    - Open the file src/mindpilot/app/configs/tool_config.py. 
+Fill in the bing search API in the following code: 
+   ```python
+    "search_internet": { 
+            "use": False, 
+            "search_engine_name": "bing", 
+            "search_engine_config": { 
+                "bing": { 
+                    "result_len": 3, 
+                    "bing_search_url": "https://api.bing.microsoft.com/v7.0/search", 
+                    "bing_key": "", 
+                }, 
+            }, 
+    ```
+
+3. **Create and Configure Agents** 🛠️:
    - Select "Create Agent" within the app and follow the prompts to complete the setup.
 
-3. **Start Tasks** 📝:
+4. **Start Tasks** 📝:
    - Input your task requirements, and MindPilot will automatically decompose and plan them.
 
 
