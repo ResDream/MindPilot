@@ -1,7 +1,7 @@
 # LangChain 的 Shell 工具
 from langchain_community.tools import ShellTool
 
-from src.mindpilot.app.utils.pydantic_v1 import Field
+from app.utils.pydantic_v1 import Field
 
 from .tools_registry import BaseToolOutput, regist_tool
 

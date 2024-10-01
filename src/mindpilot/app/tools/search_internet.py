@@ -8,7 +8,7 @@ from markdownify import markdownify
 from strsimpy.normalized_levenshtein import NormalizedLevenshtein
 
 
-from src.mindpilot.app.utils.pydantic_v1 import Field
+from app.utils.pydantic_v1 import Field
 # from chatchat.server.utils import get_tool_config
 
 from .tools_registry import BaseToolOutput, regist_tool

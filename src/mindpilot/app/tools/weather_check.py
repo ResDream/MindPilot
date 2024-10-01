@@ -3,7 +3,7 @@
 """
 import requests
 
-from src.mindpilot.app.utils.pydantic_v1 import Field
+from app.utils.pydantic_v1 import Field
 
 from .tools_registry import BaseToolOutput, regist_tool
 from ..utils.system_utils import get_tool_config

@@ -127,11 +127,11 @@ def get_ChatOpenAI(
 def get_tool(name: str = None) -> Union[BaseTool, Dict[str, BaseTool]]:
     import importlib
 
-    from src.mindpilot.app import tools
+    from app import tools
 
     importlib.reload(tools)
 
-    from src.mindpilot.app.tools import tools_registry
+    from app.tools import tools_registry
 
     if name is None:
         return tools_registry._TOOLS_REGISTRY
@@ -155,7 +155,7 @@ async def wrap_done(fn: Awaitable, event: asyncio.Event):
 
 
 def get_tool_config(name: str = None) -> Dict:
-    from src.mindpilot.app.configs import TOOL_CONFIG
+    from app.configs import TOOL_CONFIG
 
     if name is None:
         return TOOL_CONFIG
