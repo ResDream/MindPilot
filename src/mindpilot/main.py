@@ -125,7 +125,7 @@ def main():
 
     from app.knowledge_base.migrate import create_tables
 
-    create_tables()
+    # create_tables()
 
     conn = sqlite3.connect('mindpilot.db')
     cursor = conn.cursor()
