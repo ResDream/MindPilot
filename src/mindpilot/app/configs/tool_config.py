@@ -20,7 +20,7 @@ TOOL_CONFIG = {
                 "bing": {
                     "result_len": 3,
                     "bing_search_url": "https://api.bing.microsoft.com/v7.0/search",
-                    "bing_key": "",
+                    "bing_key": "0f42b09dce16474a81c01562ded071dc",
                 },
             },
             "top_k": 10,
