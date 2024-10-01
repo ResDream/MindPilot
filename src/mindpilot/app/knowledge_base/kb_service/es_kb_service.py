@@ -10,7 +10,7 @@ from langchain_community.vectorstores.elasticsearch import (
     ElasticsearchStore,
 )
 
-from src.mindpilot.app.utils.system_utils import get_Embeddings
+from app.utils.system_utils import get_Embeddings
 from ...configs import KB_ROOT_PATH, kbs_config
 from ..file_rag.utils import get_Retriever
 from ..kb_service.base import KBService, SupportedVSType

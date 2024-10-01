@@ -10,7 +10,7 @@ from multiprocessing import Process
 import argparse
 from fastapi import FastAPI
 from app.configs import HOST, PORT
-from src.mindpilot.app.utils.colorful import print亮蓝
+from app.utils.colorful import print亮蓝
 from app.configs import KB_INFO
 os.environ['HF_ENDPOINT'] = "https://hf-mirror.com"
 
@@ -42,7 +42,7 @@ def run_api_server(
 ):
     import uvicorn
     from app.api.api_server import create_app
-    from src.mindpilot.app.utils.system_utils import set_httpx_config
+    from app.utils.system_utils import set_httpx_config
 
     set_httpx_config()
     app = create_app(run_mode=run_mode)

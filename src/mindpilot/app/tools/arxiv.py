@@ -1,5 +1,5 @@
 # LangChain 的 ArxivQueryRun 工具
-from src.mindpilot.app.utils.pydantic_v1 import Field
+from app.utils.pydantic_v1 import Field
 
 from .tools_registry import BaseToolOutput, regist_tool
 

@@ -1,6 +1,6 @@
 from typing import List, Union
 from langchain.prompts.chat import ChatMessagePromptTemplate
-from src.mindpilot.app.utils.pydantic_v2 import BaseModel, Field
+from app.utils.pydantic_v2 import BaseModel, Field
 import logging
 from typing import Dict, Tuple
 
