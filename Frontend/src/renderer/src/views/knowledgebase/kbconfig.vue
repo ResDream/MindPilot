@@ -72,8 +72,8 @@
     />
     <NewKBDialog
       v-model:visible="isShowKnowledgeBaseDialog"
+      v-model:form="knowledgeBaseForm"
       :loading="loading"
-      :form="knowledgeBaseForm"
       @save="handleSaveKnowledgeBaseClick"
     />
   </div>

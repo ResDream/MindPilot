@@ -191,7 +191,6 @@ import {
   ElFormItem,
   ElInput,
   ElButton,
-  ElUpload,
   ElContainer,
   ElHeader,
   ElSlider,
@@ -199,7 +198,7 @@ import {
   ElOption,
   ElMessage
 } from 'element-plus'
-import { ArrowDown, UploadFilled } from '@element-plus/icons-vue'
+import { ArrowDown } from '@element-plus/icons-vue'
 import uploadIcon from '../assets/material-symbols--upload-sharp.png'
 import { Icon } from '@iconify/vue'
 import { useRoute, useRouter } from 'vue-router'
@@ -221,17 +220,6 @@ const agentForm = reactive({
   max_tokens: 4096
 })
 
-const fakeRAGOptions = ref([
-  {
-    value: 'knowledge_base',
-    label: '知识库1'
-  },
-  {
-    value: 'knowledge_base1',
-    label: '知识库2'
-  }
-])
-const selectedRAGOption = ref('')
 
 const onUploadIcon = () => {
   const input = document.createElement('input')
@@ -383,7 +371,6 @@ onMounted(() => {
 
 import { useConversation } from './conversationApi'
 import { Tool } from './toolConfig'
-import IconifyIconOffline from '../components/ReIcon/src/iconifyIconOffline'
 
 const { handleDebugConversation, debugConversationConfig } = useConversation()
 

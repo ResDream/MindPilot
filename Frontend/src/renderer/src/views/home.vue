@@ -36,7 +36,7 @@
         <el-menu :default-active="currentConversation?.conversation_id" class="conversation-menu">
           <div v-contextmenu:conversationMenu>
             <el-menu-item
-              v-for="conversation in conversations"
+              v-for="conversation in [...conversations].reverse()"
               :key="conversation.conversation_id"
               :index="conversation.conversation_id"
               @click="handleSwitchConversation(conversation)"
@@ -48,7 +48,14 @@
         </el-menu>
       </el-scrollbar>
       <div class="aside-buttons">
-        <span class="agent-list align-middle small-font" @click="toKBConfig">知识库管理</span>
+        <div>
+          <span
+            style="margin-right: 20%"
+            class="agent-list align-middle small-font"
+            @click="toKBConfig"
+            >知识库管理</span
+          >
+        </div>
         <el-divider direction="horizontal" border-style="dashed" />
         <span
           class="agent-list align-middle small-font"
@@ -260,9 +267,10 @@ import { useKnowledgeBase } from './knowledgebase/kbapi'
 const { knowledgeBases, fetchAllKnowledgeBases } = useKnowledgeBase()
 const selectedKnowledgeBase = ref('')
 
-watch(selectedKnowledgeBase, (newKnowledgeBase) => {
-  localConversationConfig.value.knowledge_base = newKnowledgeBase
-})
+// 知识库设置暂时不可用
+// watch(selectedKnowledgeBase, (newKnowledgeBase) => {
+//   localConversationConfig.value.knowledge_base = newKnowledgeBase
+// })
 
 /******************************************************************************/
 
@@ -296,6 +304,9 @@ onMounted(async () => {
 
     // 对话相关
     await fetchConversations()
+
+    // 进入界面直接创建一个对话
+    await createConversation(-1)
 
     // Deep Chat 初始化
     chatElementRef = document.getElementById('chat-element') as DeepChat
@@ -961,7 +972,9 @@ const chatInputConfig = () => {
   background-color: #ffffff; /* Changed to white */
   cursor: pointer;
 }
-
+.aside-buttons div {
+  text-align: center;
+}
 .main-container {
   display: flex;
   flex-direction: column;
@@ -1035,7 +1048,8 @@ const chatInputConfig = () => {
   font-weight: bold;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
+  margin-top: -10px;
 }
 
 .align-middle {

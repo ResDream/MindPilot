@@ -7,16 +7,32 @@
     >
       <el-form :model="form" label-width="120px">
         <el-form-item label="知识库名称">
-          <el-input v-model="form.knowledge_base_name" />
+          <el-input
+            v-model="
+              // eslint-disable-next-line vue/no-mutating-props
+              form.knowledge_base_name
+            "
+          />
         </el-form-item>
         <el-form-item label="向量库类型">
-          <el-select v-model="form.vector_store_type">
+          <el-select
+            v-model="
+              // eslint-disable-next-line vue/no-mutating-props
+              form.vector_store_type
+            "
+          >
             <el-option label="Faiss" value="faiss" />
             <!-- Add other options if needed -->
           </el-select>
         </el-form-item>
         <el-form-item label="知识库描述">
-          <el-input v-model="form.kb_info" type="textarea" />
+          <el-input
+            v-model="
+              // eslint-disable-next-line vue/no-mutating-props
+              form.kb_info
+            "
+            type="textarea"
+          />
         </el-form-item>
       </el-form>
     </div>

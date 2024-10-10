@@ -1,10 +1,10 @@
 export class JsonCollapse extends HTMLElement {
-  private header: HTMLDivElement | null = null;
-  private content: HTMLDivElement | null = null;
+  private header: HTMLDivElement | null = null
+  private content: HTMLDivElement | null = null
 
   constructor() {
-    super();
-    this.attachShadow({ mode: "open" });
+    super()
+    this.attachShadow({ mode: 'open' })
     this.shadowRoot!.innerHTML = `
       <style>
         :host {
@@ -26,60 +26,59 @@ export class JsonCollapse extends HTMLElement {
           background-color: #f9f9f9;
         }
       </style>
-      <div id="header">${this.getAttribute("label") || "JSON"}</div>
+      <div id="header">${this.getAttribute('label') || 'JSON'}</div>
       <div id="content"></div>
-    `;
+    `
 
-    this.header = this.shadowRoot!.querySelector("#header");
-    this.content = this.shadowRoot!.querySelector("#content");
+    this.header = this.shadowRoot!.querySelector('#header')
+    this.content = this.shadowRoot!.querySelector('#content')
 
-    this.header?.addEventListener("click", this.toggleContent.bind(this));
+    this.header?.addEventListener('click', this.toggleContent.bind(this))
   }
 
   connectedCallback() {
-    this.renderJson();
+    this.renderJson()
   }
 
   static get observedAttributes() {
-    return ["data-json"];
+    return ['data-json']
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   attributeChangedCallback(name: string, _oldValue: string, _newValue: string) {
-    if (name === "data-json") {
-      this.renderJson();
+    if (name === 'data-json') {
+      this.renderJson()
     }
   }
 
   private toggleContent() {
     if (this.content) {
-      this.content.style.display = this.content.style.display === "block" ? "none" : "block";
+      this.content.style.display = this.content.style.display === 'block' ? 'none' : 'block'
     }
   }
 
   private renderJson() {
-    const json = this.getAttribute("data-json");
+    const json = this.getAttribute('data-json')
     if (this.content) {
       try {
-        const obj = JSON.parse(json || "{}");
-        const formattedJson = JSON.stringify(obj, null, 2);
-        this.content.textContent = formattedJson;
+        const obj = JSON.parse(json || '{}')
+        const formattedJson = JSON.stringify(obj, null, 2)
+        this.content.textContent = formattedJson
       } catch (e) {
-        this.content.textContent = "Invalid JSON";
+        this.content.textContent = 'Invalid JSON'
       }
     }
   }
 }
 
-
 export class MessageCollapse extends HTMLElement {
-  private header: HTMLDivElement | null = null;
-  private content: HTMLDivElement | null = null;
-  private isCollapsed = true;
+  private header: HTMLDivElement | null = null
+  private content: HTMLDivElement | null = null
+  private isCollapsed = true
 
   constructor() {
-    super();
-    this.attachShadow({ mode: "open" });
+    super()
+    this.attachShadow({ mode: 'open' })
     this.shadowRoot!.innerHTML = `
       <style>
         :host {
@@ -103,51 +102,53 @@ export class MessageCollapse extends HTMLElement {
       </style>
       <div id="header"></div>
       <div id="content"></div>
-    `;
+    `
 
-    this.header = this.shadowRoot!.querySelector("#header");
-    this.content = this.shadowRoot!.querySelector("#content");
+    this.header = this.shadowRoot!.querySelector('#header')
+    this.content = this.shadowRoot!.querySelector('#content')
 
-    this.header?.addEventListener("click", this.toggleContent.bind(this));
+    this.header?.addEventListener('click', this.toggleContent.bind(this))
   }
 
   connectedCallback() {
-    this.renderMessage();
+    this.renderMessage()
   }
 
   static get observedAttributes() {
-    return ["data-message"];
+    return ['data-message']
   }
 
   attributeChangedCallback(name: string, _oldValue: string, _newValue: string) {
-    if (name === "data-message") {
-      this.renderMessage();
+    console.log(_oldValue, _newValue)
+    if (name === 'data-message') {
+      this.renderMessage()
     }
   }
 
   private toggleContent() {
     if (this.content) {
-      this.isCollapsed = !this.isCollapsed;
-      this.content.style.display = this.isCollapsed ? "none" : "block";
-      this.header!.textContent = this.isCollapsed ? this.getCollapsedMessage() : this.getFullMessage();
+      this.isCollapsed = !this.isCollapsed
+      this.content.style.display = this.isCollapsed ? 'none' : 'block'
+      this.header!.textContent = this.isCollapsed
+        ? this.getCollapsedMessage()
+        : this.getFullMessage()
     }
   }
 
   private renderMessage() {
-    const message = this.getAttribute("data-message") || "";
+    const message = this.getAttribute('data-message') || ''
     if (this.header && this.content) {
-      this.header.textContent = this.getCollapsedMessage();
-      this.content.textContent = message;
+      this.header.textContent = this.getCollapsedMessage()
+      this.content.textContent = message
     }
   }
 
   private getCollapsedMessage() {
-    const message = this.getAttribute("data-message") || "";
-    return message.length > 50 ? message.substring(0, 50) + "..." : message;
+    const message = this.getAttribute('data-message') || ''
+    return message.length > 50 ? message.substring(0, 50) + '...' : message
   }
 
   private getFullMessage() {
-    return this.getAttribute("data-message") || "";
+    return this.getAttribute('data-message') || ''
   }
 }
-
