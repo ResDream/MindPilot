@@ -84,10 +84,3 @@ Fill in the bing search API in the following code:
 ## Contact Us 📧
 
 For questions or suggestions, please contact [2802427218@qq.com](mailto:your-email@example.com).
-
----
-
-**Let's build a smarter assistant together!** 🌟
-```
-
-Feel free to adjust the emojis or any other content as needed!
