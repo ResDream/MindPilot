@@ -667,6 +667,30 @@ const fetchConversations = async () => {
 
 const selectedAgentId = ref<number | null>(-1)
 
+// 监听 agent 选择的变化
+watch(selectedAgentId, (newAgentId) => {
+  if (newAgentId !== -1) {
+    const selectedAgent = agents.value.find((agent) => agent.agent_id === newAgentId)
+    if (selectedAgent) {
+      updateConfigFromAgent(selectedAgent)
+    }
+  }
+})
+
+// 更新配置
+const updateConfigFromAgent = (agent: Agent) => {
+  localConversationConfig.value.temperature = agent.temperature
+  localConversationConfig.value.max_tokens = agent.max_tokens
+  selectedTools.value = agent.tool_config
+  isAgentEnabled.value = true
+  localConversationConfig.value.agent_id = agent.agent_id as number
+
+  // 如果agent有知识库配置，也更新知识库
+  if (agent.kb_name && agent.kb_name.length > 0) {
+    selectedKnowledgeBase.value = agent.kb_name[0] //TODO:这里可能需要修改
+  }
+}
+
 watch(
   selectedTools,
   (newSelectedTools) => {
@@ -730,7 +754,7 @@ const handleOptionClick = async (event: MouseEvent, agent: Agent) => {
     selectedAgentId.value = agent.agent_id as number
 
     console.log('当前对话ID：', currentConversation.value?.conversation_id)
-
+    updateConfigFromAgent(agent)
     localConversationConfig.value.temperature = agent.temperature
     localConversationConfig.value.max_tokens = agent.max_tokens
 
@@ -972,9 +996,11 @@ const chatInputConfig = () => {
   background-color: #ffffff; /* Changed to white */
   cursor: pointer;
 }
+
 .aside-buttons div {
   text-align: center;
 }
+
 .main-container {
   display: flex;
   flex-direction: column;

@@ -131,8 +131,8 @@ const filteredDocuments = computed(() => {
   )
 })
 
-const handleNewFileChange = (file: File, fileList: File[]) => {
-  newFileUpload.value = fileList.map((file) => file.raw) as []
+const handleNewFileChange = (_file: File, fileList: File[]) => {
+  newFileUpload.value = fileList as []
 }
 
 interface Props {
