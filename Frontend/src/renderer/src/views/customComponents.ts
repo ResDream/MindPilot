@@ -1,6 +1,7 @@
 export class JsonCollapse extends HTMLElement {
   private header: HTMLDivElement | null = null
   private content: HTMLDivElement | null = null
+  private arrow: HTMLSpanElement | null = null
 
   constructor() {
     super()
@@ -9,29 +10,66 @@ export class JsonCollapse extends HTMLElement {
       <style>
         :host {
           display: block;
-          border: 1px solid #ccc;
+          font-family: 'Arial', sans-serif;
+          margin: 10px 0;
           border-radius: 8px;
-          font-family: 'Courier New', Courier, monospace;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+          overflow: hidden;
+          transition: all 0.3s ease;
         }
         #header {
-          background-color: #f1f1f1;
-          padding: 2px;
+          background-color: #f0f4f8;
+          padding: 12px 16px;
           cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
           font-size: 14px;
+          font-weight: bold;
+          color: #333;
+          transition: background-color 0.3s ease;
+        }
+        #header:hover {
+          background-color: #e3e9f2;
         }
         #content {
-          padding: 10px;
-          display: none;
-          white-space: pre-wrap;
-          background-color: #f9f9f9;
+          max-height: 0;
+          overflow: hidden;
+          transition: max-height 0.3s ease;
+          background-color: #fff;
         }
+        #json-content {
+          padding: 16px;
+          margin: 0;
+          white-space: pre-wrap;
+          font-family: 'Consolas', monospace;
+          font-size: 13px;
+          color: #333;
+        }
+        .arrow {
+          transition: transform 0.3s ease;
+        }
+        .arrow.open {
+          transform: rotate(180deg);
+        }
+        .key { color: #881391; }
+        .string { color: #1A1AA6; }
+        .number { color: #1C00CF; }
+        .boolean { color: #0000FF; }
+        .null { color: #808080; }
       </style>
-      <div id="header">${this.getAttribute('label') || 'JSON'}</div>
-      <div id="content"></div>
+      <div id="header">
+        <span>${this.getAttribute('label') || 'JSON'}</span>
+        <span class="arrow">▼</span>
+      </div>
+      <div id="content">
+        <pre id="json-content"></pre>
+      </div>
     `
 
     this.header = this.shadowRoot!.querySelector('#header')
     this.content = this.shadowRoot!.querySelector('#content')
+    this.arrow = this.shadowRoot!.querySelector('.arrow')
 
     this.header?.addEventListener('click', this.toggleContent.bind(this))
   }
@@ -44,7 +82,6 @@ export class JsonCollapse extends HTMLElement {
     return ['data-json']
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   attributeChangedCallback(name: string, _oldValue: string, _newValue: string) {
     if (name === 'data-json') {
       this.renderJson()
@@ -52,22 +89,46 @@ export class JsonCollapse extends HTMLElement {
   }
 
   private toggleContent() {
-    if (this.content) {
-      this.content.style.display = this.content.style.display === 'block' ? 'none' : 'block'
+    if (this.content && this.arrow) {
+      const isOpen = this.content.style.maxHeight !== '0px'
+      this.content.style.maxHeight = isOpen ? '0px' : `${this.content.scrollHeight}px`
+      this.arrow.classList.toggle('open')
     }
   }
 
   private renderJson() {
     const json = this.getAttribute('data-json')
-    if (this.content) {
+    const contentElement = this.shadowRoot!.querySelector('#json-content')
+    if (contentElement) {
       try {
         const obj = JSON.parse(json || '{}')
-        const formattedJson = JSON.stringify(obj, null, 2)
-        this.content.textContent = formattedJson
+        const formattedJson = this.syntaxHighlight(JSON.stringify(obj, null, 2))
+        contentElement.innerHTML = formattedJson
       } catch (e) {
-        this.content.textContent = 'Invalid JSON'
+        contentElement.textContent = 'Invalid JSON'
       }
     }
+  }
+
+  private syntaxHighlight(json: string) {
+    return json.replace(
+      /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g,
+      (match) => {
+        let cls = 'number'
+        if (/^"/.test(match)) {
+          if (/:$/.test(match)) {
+            cls = 'key'
+          } else {
+            cls = 'string'
+          }
+        } else if (/true|false/.test(match)) {
+          cls = 'boolean'
+        } else if (/null/.test(match)) {
+          cls = 'null'
+        }
+        return `<span class="${cls}">${match}</span>`
+      }
+    )
   }
 }
 
@@ -75,6 +136,7 @@ export class MessageCollapse extends HTMLElement {
   private header: HTMLDivElement | null = null
   private content: HTMLDivElement | null = null
   private isCollapsed = true
+  private arrow: HTMLSpanElement | null = null
 
   constructor() {
     super()
@@ -83,29 +145,65 @@ export class MessageCollapse extends HTMLElement {
       <style>
         :host {
           display: block;
-          border: 1px solid #ccc;
-          border-radius: 8px;
           font-family: 'Arial', sans-serif;
+          margin: 10px 0;
+          border-radius: 8px;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+          overflow: hidden;
+          transition: all 0.3s ease;
         }
         #header {
-          background-color: #f1f1f1;
-          padding: 10px;
+          background-color: #e8f0fe;
+          padding: 12px 16px;
           cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
           font-size: 14px;
+          color: #1a73e8;
+          transition: background-color 0.3s ease;
+        }
+        #header:hover {
+          background-color: #d2e3fc;
         }
         #content {
-          padding: 10px;
-          display: none;
+          max-height: 0;
+          overflow: hidden;
+          transition: max-height 0.3s ease;
+          background-color: #fff;
+        }
+        #message-content {
+          padding: 16px;
+          margin: 0;
           white-space: pre-wrap;
-          background-color: #f9f9f9;
+          font-size: 14px;
+          line-height: 1.5;
+          color: #202124;
+        }
+        .arrow {
+          transition: transform 0.3s ease;
+        }
+        .arrow.open {
+          transform: rotate(180deg);
+        }
+        .highlight {
+          background-color: #ffeeba;
+          padding: 2px 4px;
+          border-radius: 4px;
         }
       </style>
-      <div id="header"></div>
-      <div id="content"></div>
+      <div id="header">
+        <span id="header-text"></span>
+        <span class="arrow">▼</span>
+      </div>
+      <div id="content">
+        <div id="message-content"></div>
+      </div>
     `
 
     this.header = this.shadowRoot!.querySelector('#header')
     this.content = this.shadowRoot!.querySelector('#content')
+    this.arrow = this.shadowRoot!.querySelector('.arrow')
 
     this.header?.addEventListener('click', this.toggleContent.bind(this))
   }
@@ -119,27 +217,37 @@ export class MessageCollapse extends HTMLElement {
   }
 
   attributeChangedCallback(name: string, _oldValue: string, _newValue: string) {
-    console.log(_oldValue, _newValue)
     if (name === 'data-message') {
       this.renderMessage()
     }
   }
 
   private toggleContent() {
-    if (this.content) {
+    if (this.content && this.arrow) {
       this.isCollapsed = !this.isCollapsed
-      this.content.style.display = this.isCollapsed ? 'none' : 'block'
-      this.header!.textContent = this.isCollapsed
-        ? this.getCollapsedMessage()
-        : this.getFullMessage()
+      this.content.style.maxHeight = this.isCollapsed ? '0' : `${this.content.scrollHeight}px`
+      this.arrow.classList.toggle('open')
+      this.updateHeaderText()
     }
   }
 
   private renderMessage() {
     const message = this.getAttribute('data-message') || ''
     if (this.header && this.content) {
-      this.header.textContent = this.getCollapsedMessage()
-      this.content.textContent = message
+      this.updateHeaderText()
+      const contentElement = this.shadowRoot!.querySelector('#message-content')
+      if (contentElement) {
+        contentElement.innerHTML = this.formatMessage(message)
+      }
+    }
+  }
+
+  private updateHeaderText() {
+    const headerTextElement = this.shadowRoot!.querySelector('#header-text')
+    if (headerTextElement) {
+      headerTextElement.textContent = this.isCollapsed
+        ? this.getCollapsedMessage()
+        : 'Agent搜索结果'
     }
   }
 
@@ -148,7 +256,12 @@ export class MessageCollapse extends HTMLElement {
     return message.length > 50 ? message.substring(0, 50) + '...' : message
   }
 
-  private getFullMessage() {
-    return this.getAttribute('data-message') || ''
+  private formatMessage(message: string) {
+    // 简单的URL检测和链接转换
+    const urlRegex = /(https?:\/\/[^\s]+)/g
+    return message.replace(
+      urlRegex,
+      (url) => `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`
+    )
   }
 }

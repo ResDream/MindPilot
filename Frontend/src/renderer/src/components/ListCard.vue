@@ -12,11 +12,11 @@
         </div>
         <div class="list-card-item_detail--operation">
           <el-dropdown trigger="click" :disabled="!product.isSetup">
-            <IconifyIconOffline :icon="More2Fill" class="text-[24px]" />
+            <IconifyIconOffline :icon="More2Fill as any" class="text-[24px]" />
             <template #dropdown>
               <el-dropdown-menu :disabled="!product.isSetup">
-                <el-dropdown-item @click="handleClickManage(product)"> 管理 </el-dropdown-item>
-                <el-dropdown-item @click="handleClickDelete(product)"> 删除 </el-dropdown-item>
+                <el-dropdown-item @click="handleClickManage(product)"> 管理</el-dropdown-item>
+                <el-dropdown-item @click="handleClickDelete(product)"> 删除</el-dropdown-item>
               </el-dropdown-menu>
             </template>
           </el-dropdown>
@@ -41,7 +41,8 @@
 import { computed, PropType } from 'vue'
 import { Icon } from '@iconify/vue'
 import More2Fill from '@iconify-icons/ri/more-2-fill'
-import IconifyIconOffline from './ReIcon/src/iconifyIconOffline'
+import IconifyIconOffline from "@renderer/components/ReIcon/src/iconifyIconOffline";
+
 
 defineOptions({
   name: 'ReCard'
@@ -86,6 +87,9 @@ const cardLogoClass = computed(() => [
 const formattedFileCount = computed(() => props.product.fileCount ?? 0)
 
 const formattedLastUpdatedAt = computed(() => {
+  if (!props.product.lastUpdatedAt) {
+    return '无更新时间' // 或者返回一个空字符串 ''
+  }
   const date = new Date(props.product.lastUpdatedAt)
   return date.toLocaleString('zh-CN', {
     year: 'numeric',

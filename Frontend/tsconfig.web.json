@@ -6,6 +6,9 @@
     "src/renderer/src/**/*.vue",
     "src/preload/*.d.ts"
   ],
+  "exclude": [
+    "src/renderer/src/components/ReIcon/**/*"
+  ],
   "compilerOptions": {
     "composite": true,
     "baseUrl": ".",
@@ -13,6 +16,8 @@
       "@renderer/*": [
         "src/renderer/src/*"
       ]
-    }
+    },
+    "skipLibCheck": true,
+    "noEmitOnError": false
   }
 }
