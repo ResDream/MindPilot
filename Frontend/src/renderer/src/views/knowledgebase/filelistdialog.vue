@@ -79,7 +79,7 @@
             class="file-upload"
             :auto-upload="false"
             :on-change="handleNewFileChange"
-            :file-list="newFileUpload"
+            v-model:file-list="newFileUpload"
             multiple
           >
             <el-button type="primary">选择文件</el-button>
@@ -114,7 +114,7 @@ defineOptions({
 })
 
 const searchValue = ref('')
-const newFileUpload = ref<[]>([])
+const newFileUpload = ref<{ raw: File }[]>([])
 const newFileDialogVisible = ref(false)
 const uploadOptions = reactive({
   override: false,
@@ -125,35 +125,27 @@ const uploadOptions = reactive({
   not_refresh_vs_cache: false
 })
 
-const filteredDocuments = computed(() => {
-  return props.documents.filter((doc) =>
-    doc.file_name.toLowerCase().includes(searchValue.value.toLowerCase())
-  )
-})
-
-const handleNewFileChange = (_file: File, fileList: File[]) => {
-  newFileUpload.value = fileList as []
+interface Document {
+  kb_name: string
+  file_name: string
+  file_ext: string
+  file_version: number
+  document_loader: string
+  docs_count: number
+  text_splitter: string
+  create_time: string
+  in_folder: boolean
+  in_db: boolean
+  file_mtime: number
+  file_size: number
+  custom_docs: boolean
+  No: number
 }
 
 interface Props {
   visible: boolean
   kbName: string
-  documents: {
-    kb_name: string
-    file_name: string
-    file_ext: string
-    file_version: number
-    document_loader: string
-    docs_count: number
-    text_splitter: string
-    create_time: string
-    in_folder: boolean
-    in_db: boolean
-    file_mtime: number
-    file_size: number
-    custom_docs: boolean
-    No: number
-  }[]
+  documents: Document[]
 }
 
 const props = defineProps<Props>()
@@ -161,6 +153,12 @@ const emit = defineEmits(['update:visible', 'refresh-documents'])
 
 const dialogVisible = ref(props.visible)
 const { deleteDocument, fetchDocuments, uploadDocument } = useKnowledgeBase()
+
+const filteredDocuments = computed(() => {
+  return props.documents.filter((doc) =>
+    doc.file_name.toLowerCase().includes(searchValue.value.toLowerCase())
+  )
+})
 
 watch(
   () => props.visible,
@@ -173,11 +171,16 @@ watch(dialogVisible, (newValue) => {
   emit('update:visible', newValue)
 })
 
+const handleNewFileChange = (_file: File, fileList: { raw: File }[]) => {
+  newFileUpload.value = fileList
+}
+
 const handleNewFile = () => {
   newFileDialogVisible.value = true
 }
+
 const handleUploadNewFile = async () => {
-  const files = newFileUpload.value
+  const files = newFileUpload.value.map((file) => file.raw)
   if (files.length === 0) {
     ElMessage.warning('请选择要上传的文件')
     return
