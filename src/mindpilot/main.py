@@ -12,8 +12,8 @@ from fastapi import FastAPI
 from app.configs import HOST, PORT
 from app.utils.colorful import print亮蓝
 from app.configs import KB_INFO
-os.environ['HF_ENDPOINT'] = "https://hf-mirror.com"
 
+os.environ['HF_ENDPOINT'] = "https://hf-mirror.com"
 
 logger = logging.getLogger()
 
@@ -145,9 +145,28 @@ def main():
         ''')
     conn.commit()
 
+    cursor.execute("""
+        SELECT name FROM sqlite_master 
+        WHERE type='table' AND name='knowledge_base'
+    """)
+
+    if cursor.fetchone() is None:
+        cursor.execute('''
+                CREATE TABLE IF NOT EXISTS knowledge_base (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    kb_name TEXT NOT NULL,
+                    kb_info TEXT
+                )
+            ''')
+        conn.commit()
+
     default_agents = [
-        {"id": 0, "agent_name": "默认agent", "agent_abstract": "", "agent_info": "", "temperature": 0.8, "max_tokens": 4096, "tool_config": "arxiv,calculate,search_internet,search_local_knowledgebase,weather_check,shell,wolfram", "kb_name": "", "avatar": ""},
-        {"id": -1, "agent_name": "对话模型", "agent_abstract": "", "agent_info": "", "temperature": 0.8, "max_tokens": 4096, "tool_config": "", "kb_name": "", "avatar": ""}
+        {"id": 0, "agent_name": "默认agent", "agent_abstract": "", "agent_info": "", "temperature": 0.8,
+         "max_tokens": 4096,
+         "tool_config": "arxiv,calculate,search_internet,search_local_knowledgebase,weather_check,shell,wolfram",
+         "kb_name": "", "avatar": ""},
+        {"id": -1, "agent_name": "对话模型", "agent_abstract": "", "agent_info": "", "temperature": 0.8,
+         "max_tokens": 4096, "tool_config": "", "kb_name": "", "avatar": ""}
     ]
 
     for agent in default_agents:
@@ -156,7 +175,8 @@ def main():
             cursor.execute('''
             INSERT INTO agents (id, agent_name, agent_abstract, agent_info, temperature, max_tokens, tool_config, kb_name, avatar)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ''', (agent["id"], agent["agent_name"], agent["agent_abstract"], agent["agent_info"], agent["temperature"], agent["max_tokens"], agent["tool_config"], agent["kb_name"], agent["avatar"]))
+            ''', (agent["id"], agent["agent_name"], agent["agent_abstract"], agent["agent_info"], agent["temperature"],
+                  agent["max_tokens"], agent["tool_config"], agent["kb_name"], agent["avatar"]))
             conn.commit()
 
     KB_INFO = {}
