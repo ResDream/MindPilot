@@ -1,7 +1,6 @@
 import type { App } from 'vue'
 import type { RouteRecordRaw } from 'vue-router'
 import { createRouter, createWebHashHistory } from 'vue-router'
-import EnvCheck from '@renderer/views/EnvCheck.vue'
 
 const routes: RouteRecordRaw[] = [
   {
@@ -18,11 +17,6 @@ const routes: RouteRecordRaw[] = [
     path: '/kbconfig',
     name: 'kbconfig',
     component: () => import('@renderer/views/knowledgebase/kbconfig.vue')
-  },
-  {
-    path: '/env-check',
-    name: 'EnvCheck',
-    component: EnvCheck
   }
 ]
 
