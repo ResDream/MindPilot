@@ -17,8 +17,19 @@ from langchain_openai.chat_models import ChatOpenAI
 from .pydantic_v2 import BaseModel, Field
 from ..configs import DEFAULT_EMBEDDING_MODEL
 from langchain_core.embeddings import Embeddings
+import sys
+import os
 
 logger = logging.getLogger()
+
+
+def get_resource_path(relative_path):
+    if getattr(sys, 'frozen', False):
+        base_path = sys._MEIPASS
+    else:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
 
 
 def set_httpx_config(
@@ -191,10 +202,10 @@ class ListResponse(BaseResponse):
 
 
 def get_mindpilot_db_connection():
-    conn = sqlite3.connect('mindpilot.db')
+    db_path = get_resource_path('mindpilot.db')
+    conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
     return conn
-
 
 def run_in_thread_pool(
         func: Callable,
@@ -215,10 +226,10 @@ def run_in_thread_pool(
             except Exception as e:
                 logger.error(f"error in sub thread: {e}", exc_info=True)
 
-def get_Embeddings(
-    embed_model: str = DEFAULT_EMBEDDING_MODEL,
-) -> Embeddings:
 
+def get_Embeddings(
+        embed_model: str = DEFAULT_EMBEDDING_MODEL,
+) -> Embeddings:
     # from ..knowledge_base.embedding.localai_embeddings import (
     #     LocalAIEmbeddings,
     # )

@@ -1,8 +1,11 @@
 import sqlite3
 
+from src.mindpilot.app.utils.system_utils import get_resource_path
+
 
 def get_config_from_id(config_id: int):
-    conn = sqlite3.connect('mindpilot.db')
+    db_path = get_resource_path('mindpilot.db')
+    conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
 
     cursor.execute('SELECT * FROM model_configs WHERE id = ?', (config_id,))
