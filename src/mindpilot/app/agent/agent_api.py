@@ -1,7 +1,7 @@
 from typing import List, Optional
 from fastapi import Body, File, UploadFile, Query
 import sqlite3
-from ..utils.system_utils import BaseResponse, ListResponse
+from ..utils.system_utils import BaseResponse, ListResponse, get_resource_path
 
 
 def create_agent(
@@ -14,7 +14,8 @@ def create_agent(
         kb_name: List[str] = Body([], examples=[["ChatGPT KB"]]),
         avatar: str = Body("", description="头像图片的Base64编码")
 ) -> BaseResponse:
-    conn = sqlite3.connect('mindpilot.db')
+    db_path = get_resource_path('mindpilot.db')
+    conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
 
     cursor.execute('''
@@ -79,7 +80,8 @@ def create_agent(
 def delete_agent(
         agent_id: int = Body(..., examples=["1"])
 ) -> BaseResponse:
-    conn = sqlite3.connect('mindpilot.db')
+    db_path = get_resource_path('mindpilot.db')
+    conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
 
     if agent_id is None:
@@ -108,7 +110,8 @@ def update_agent(
         kb_name: List[str] = Body([], examples=[["ChatGPT KB"]]),
         avatar: str = Body("", description="头像图片的Base64编码")
 ) -> BaseResponse:
-    conn = sqlite3.connect('mindpilot.db')
+    db_path = get_resource_path('mindpilot.db')
+    conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
 
     if agent_id is None:
@@ -139,7 +142,8 @@ def update_agent(
 
 
 def list_agent() -> ListResponse:
-    conn = sqlite3.connect('mindpilot.db')
+    db_path = get_resource_path('mindpilot.db')
+    conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
 
     cursor.execute('''
@@ -186,7 +190,8 @@ def list_agent() -> ListResponse:
 def get_agent(
         agent_id: int = Query(..., examples=["1"]),
 ):
-    conn = sqlite3.connect('mindpilot.db')
+    db_path = get_resource_path('mindpilot.db')
+    conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
 
     if agent_id is None:

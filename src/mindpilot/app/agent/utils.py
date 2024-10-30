@@ -1,8 +1,11 @@
 import sqlite3
 
+from src.mindpilot.app.utils.system_utils import get_resource_path
+
 
 def get_agent_from_id(agent_id: int):
-    conn = sqlite3.connect('mindpilot.db')
+    db_path = get_resource_path('mindpilot.db')
+    conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
 
     cursor.execute('SELECT * FROM agents WHERE id = ?', (agent_id,))

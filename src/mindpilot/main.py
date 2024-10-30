@@ -12,6 +12,7 @@ from fastapi import FastAPI
 from app.configs import HOST, PORT
 from app.utils.colorful import print亮蓝
 from app.configs import KB_INFO
+from src.mindpilot.app.utils.system_utils import get_resource_path
 
 os.environ['HF_ENDPOINT'] = "https://hf-mirror.com"
 
@@ -127,7 +128,8 @@ def main():
 
     create_tables()
 
-    conn = sqlite3.connect('mindpilot.db')
+    db_path = get_resource_path('mindpilot.db')
+    conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
 
     cursor.execute('''
@@ -159,6 +161,22 @@ def main():
                 )
             ''')
         conn.commit()
+
+        cursor.execute('''
+        CREATE TABLE IF NOT EXISTS model_configs (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            config_name TEXT NOT NULL,
+            platform TEXT NOT NULL,
+            base_url TEXT NOT NULL,
+            api_key TEXT NOT NULL,
+            model TEXT NOT NULL,
+            callbacks BOOLEAN NOT NULL,
+            max_tokens INTEGER NOT NULL,
+            temperature REAL NOT NULL
+        )
+    ''')
+
+    conn.commit()
 
     default_agents = [
         {"id": 0, "agent_name": "默认agent", "agent_abstract": "", "agent_info": "", "temperature": 0.8,
@@ -198,5 +216,30 @@ def main():
     loop.run_until_complete(start_main_server())
 
 
-if __name__ == "__main__":
+def check_dependencies():
+    required_packages = [
+        'langchain',
+        'fastapi',
+        'uvicorn',
+        'pydantic',
+        'openai',
+        'numpy',
+        'pandas'
+    ]
+
+    missing_packages = []
+    for package in required_packages:
+        try:
+            __import__(package)
+        except ImportError:
+            missing_packages.append(package)
+
+    if missing_packages:
+        print(f"缺少必要的依赖包: {', '.join(missing_packages)}")
+        print("请使用 pip install 安装这些包")
+        sys.exit(1)
+
+
+if __name__ == '__main__':
+    check_dependencies()
     main()
