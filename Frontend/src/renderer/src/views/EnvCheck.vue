@@ -2,100 +2,203 @@
   <div class="env-check">
     <h2>环境检查</h2>
     <el-steps :active="activeStep" finish-status="success">
-      <el-step title="检查Python环境"></el-step>
-      <el-step title="检查必要库"></el-step>
-      <el-step title="检查后端配置"></el-step>
+      <el-step title="检查后端"></el-step>
+      <el-step title="下载后端"></el-step>
+      <el-step title="启动后端"></el-step>
     </el-steps>
+
     <div class="status">{{ status }}</div>
-    <div class="button-group">
-      <el-button @click="startCheck" :disabled="checkInProgress">开始检查</el-button>
-      <el-button @click="skipCheck" type="warning">跳过检查</el-button>
+
+    <div v-if="showDownloadPrompt" class="download-prompt">
+      <p>未检测到后端程序，是否下载？</p>
+      <el-form :model="downloadForm" label-width="120px">
+        <el-form-item label="下载路径">
+          <el-input v-model="downloadForm.path">
+            <template #append>
+              <el-button @click="handleSelectPath">选择路径</el-button>
+            </template>
+          </el-input>
+        </el-form-item>
+      </el-form>
+      <div class="button-group">
+        <el-button type="primary" @click="handleDownload" :loading="downloading">
+          {{ downloading ? '下载中...' : '下载' }}
+        </el-button>
+        <el-button @click="handleExit">退出</el-button>
+      </div>
     </div>
+
+    <div v-if="error" class="error">
+      <el-alert :title="error" type="error" :closable="false" show-icon />
+      <div class="retry-options">
+        <el-button type="primary" @click="handleRetry">重试</el-button>
+        <el-button @click="handleRedownload">重新下载</el-button>
+      </div>
+    </div>
+
+    <el-progress
+      v-if="downloading"
+      :percentage="downloadProgress"
+      :format="progressFormat"
+      style="margin-top: 20px"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ref, onMounted } from 'vue'
+import { ElMessage } from 'element-plus'
+import type { DownloadProgress } from '../../preload/index'
+
+interface DownloadForm {
+  path: string
+}
 
 const activeStep = ref(0)
-const status = ref('点击开始检查环境')
-const checkInProgress = ref(false)
+const status = ref('正在检查后端...')
+const showDownloadPrompt = ref(false)
+const downloading = ref(false)
+const downloadProgress = ref(0)
+const error = ref('')
 
-const startCheck = async () => {
-  checkInProgress.value = true
-  status.value = '正在检查Python环境...'
-  activeStep.value = 1
+const downloadForm = ref<DownloadForm>({
+  path: ''
+})
 
+onMounted(async () => {
   try {
-    // 这里应该实现实际的环境检查逻辑
-    await checkPythonEnvironment()
-    await checkRequiredLibraries()
-    await checkBackendConfig()
+    downloadForm.value.path = await window.api.getDefaultDownloadPath()
+    const backendExists = await window.api.checkBackend()
+    if (backendExists) {
+      activeStep.value = 3
+      window.api.completeEnvCheck(true)
+    } else {
+      showDownloadPrompt.value = true
+    }
+  } catch (err) {
+    handleError(err as Error)
+  }
+})
 
-    status.value = '环境检查完成'
-    ElMessage.success('环境检查通过')
-    window.electron.ipcRenderer.send('env-check-complete', true)
-  } catch (error) {
-    status.value = `检查失败: ${error.message}`
-    ElMessage.error('环境检查失败')
-    window.electron.ipcRenderer.send('env-check-complete', false)
-  } finally {
-    checkInProgress.value = false
+const handleSelectPath = async () => {
+  try {
+    const result = await window.api.selectDirectory()
+    if (result) {
+      downloadForm.value.path = result
+    }
+  } catch (err) {
+    handleError(err as Error)
   }
 }
 
-const skipCheck = () => {
-  ElMessageBox.confirm(
-    '跳过环境检查可能导致应用无法正常运行。是否确定跳过？',
-    '警告',
-    {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning',
+const handleDownload = async () => {
+  if (!downloadForm.value.path) {
+    ElMessage.error('请选择下载路径')
+    return
+  }
+
+  downloading.value = true
+  activeStep.value = 1
+  status.value = '正在下载后端...'
+  error.value = ''
+
+  try {
+    const success = await window.api.downloadBackend(
+      downloadForm.value.path,
+      (progress: DownloadProgress) => {
+        downloadProgress.value = progress
+      }
+    )
+
+    if (success) {
+      await startBackend()
+    } else {
+      error.value = '下载失败，请检查网络连接后重试'
     }
-  )
-    .then(() => {
-      ElMessage.warning('已跳过环境检查')
-      window.electron.ipcRenderer.send('env-check-complete', true)
-    })
-    .catch(() => {
-      ElMessage.info('已取消跳过')
-    })
+  } catch (err) {
+    handleError(err as Error)
+  } finally {
+    downloading.value = false
+  }
 }
 
-const checkPythonEnvironment = async () => {
-  // 模拟Python环境检查
-  await new Promise(resolve => setTimeout(resolve, 1000))
+const startBackend = async () => {
   activeStep.value = 2
+  status.value = '正在启动后端...'
+  error.value = ''
+
+  try {
+    const success = await window.api.startBackend()
+    if (success) {
+      ElMessage.success('环境检查完成')
+      window.api.completeEnvCheck(true)
+    } else {
+      error.value = '后端启动失败，请检查是否有其他程序占用端口'
+    }
+  } catch (err) {
+    handleError(err as Error)
+  }
 }
 
-const checkRequiredLibraries = async () => {
-  // 模拟必要库检查
-  await new Promise(resolve => setTimeout(resolve, 1000))
-  activeStep.value = 3
+const handleRetry = () => {
+  error.value = ''
+  startBackend()
 }
 
-const checkBackendConfig = async () => {
-  // 模拟后端配置检查
-  await new Promise(resolve => setTimeout(resolve, 1000))
+const handleRedownload = () => {
+  error.value = ''
+  showDownloadPrompt.value = true
+  downloading.value = false
+  downloadProgress.value = 0
+}
+
+const handleExit = () => {
+  window.api.completeEnvCheck(false)
+}
+
+const handleError = (err: Error) => {
+  error.value = `操作失败: ${err.message || '未知错误'}`
+  console.error('Operation failed:', err)
+}
+
+const progressFormat = (percentage: number) => {
+  return percentage === 100 ? '下载完成' : `${percentage}%`
 }
 </script>
 
 <style scoped>
 .env-check {
   padding: 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  max-width: 600px;
+  margin: 0 auto;
 }
 
 .status {
   margin: 20px 0;
+  text-align: center;
+  font-size: 16px;
+}
+
+.download-prompt {
+  text-align: center;
+  margin: 20px 0;
 }
 
 .button-group {
+  margin-top: 20px;
   display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.error {
+  margin-top: 20px;
+}
+
+.retry-options {
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
   gap: 10px;
 }
 </style>

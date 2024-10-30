@@ -1,18 +1,35 @@
-import { contextBridge } from 'electron'
+import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 
-// Custom APIs for renderer
-const api = {}
+export type DownloadProgress = number
 
-// Use `contextBridge` APIs to expose Electron APIs to
-// renderer only if context isolation is enabled, otherwise
-// just add to the DOM global.
+export interface API {
+  getDefaultDownloadPath: () => Promise<string>
+  selectDirectory: () => Promise<string>
+  checkBackend: () => Promise<boolean>
+  downloadBackend: (path: string, onProgress: (progress: DownloadProgress) => void) => Promise<boolean>
+  startBackend: () => Promise<boolean>
+  completeEnvCheck: (success: boolean) => void
+}
+
+const api: API = {
+  getDefaultDownloadPath: () => ipcRenderer.invoke('get-default-download-path'),
+  selectDirectory: () => ipcRenderer.invoke('select-directory'),
+  checkBackend: () => ipcRenderer.invoke('check-backend'),
+  downloadBackend: (path: string, onProgress: (progress: DownloadProgress) => void) => {
+    ipcRenderer.on('download-progress', (_event, progress) => onProgress(progress))
+    return ipcRenderer.invoke('download-backend', path)
+  },
+  startBackend: () => ipcRenderer.invoke('start-backend'),
+  completeEnvCheck: (success: boolean) => ipcRenderer.send('env-check-complete', success)
+}
+
 if (process.contextIsolated) {
   try {
     contextBridge.exposeInMainWorld('electron', electronAPI)
     contextBridge.exposeInMainWorld('api', api)
   } catch (error) {
-    console.error(error)
+    console.error('Failed to expose API:', error)
   }
 } else {
   // @ts-ignore (define in dts)
