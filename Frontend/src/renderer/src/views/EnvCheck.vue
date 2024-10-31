@@ -36,19 +36,23 @@
       </div>
     </div>
 
-    <el-progress
-      v-if="downloading"
-      :percentage="downloadProgress"
-      :format="progressFormat"
-      style="margin-top: 20px"
-    />
+    <!-- 修改进度条显示条件和样式 -->
+    <div v-if="downloading" class="progress-container">
+      <el-progress
+        :percentage="downloadProgress"
+        :format="progressFormat"
+        :status="downloadProgress >= 100 ? 'success' : ''"
+        :stroke-width="20"
+        style="margin-top: 20px"
+      />
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
-import type { DownloadProgress } from '../../preload/index'
+import type { DownloadProgress } from '@renderer/env'
 
 interface DownloadForm {
   path: string
@@ -101,6 +105,7 @@ const handleDownload = async () => {
   activeStep.value = 1
   status.value = '正在下载后端...'
   error.value = ''
+  downloadProgress.value = 0 // 重置进度条
 
   try {
     const success = await window.api.downloadBackend(
@@ -118,7 +123,9 @@ const handleDownload = async () => {
   } catch (err) {
     handleError(err as Error)
   } finally {
-    downloading.value = false
+    if (error.value) {
+      downloading.value = false
+    }
   }
 }
 
@@ -200,5 +207,11 @@ const progressFormat = (percentage: number) => {
   display: flex;
   justify-content: center;
   gap: 10px;
+}
+
+.progress-container {
+  margin: 20px auto;
+  width: 90%;
+  max-width: 500px;
 }
 </style>

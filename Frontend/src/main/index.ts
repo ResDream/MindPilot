@@ -12,8 +12,8 @@ let backendManager: BackendManager
 
 function createEnvCheckWindow(): void {
   envCheckWindow = new BrowserWindow({
-    width: 600,
-    height: 400,
+    width: 800,
+    height: 500,
     show: false,
     autoHideMenuBar: true,
     ...(process.platform === 'linux' ? { icon } : {}),
@@ -120,6 +120,8 @@ async function handleStartup() {
   if (backendAvailable) {
     createMainWindow()
   } else if (configManager.wasLastStartSuccessful()) {
+
+
     const startSuccess = await backendManager.startBackend()
     if (startSuccess) {
       createMainWindow()
