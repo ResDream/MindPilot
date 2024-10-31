@@ -12,8 +12,8 @@ let backendManager: BackendManager
 
 function createEnvCheckWindow(): void {
   envCheckWindow = new BrowserWindow({
-    width: 800,
-    height: 500,
+    width: 600,
+    height: 400,
     show: false,
     autoHideMenuBar: true,
     ...(process.platform === 'linux' ? { icon } : {}),
@@ -77,7 +77,7 @@ function createMainWindow(): void {
 
 function setupIPC() {
   ipcMain.handle('get-default-download-path', () => {
-    return configManager.getDefaultDownloadPath()
+    return configManager.getBackendPath()
   })
 
   ipcMain.handle('select-directory', async () => {
@@ -113,24 +113,27 @@ function setupIPC() {
   })
 }
 
-// Handle backend startup and window creation
+// 启动流程处理
 async function handleStartup() {
-  const backendAvailable = await backendManager.checkBackend()
-
-  if (backendAvailable) {
+  // 检查后端是否正在运行
+  const backendRunning = await backendManager.checkBackend()
+  if (backendRunning) {
     createMainWindow()
-  } else if (configManager.wasLastStartSuccessful()) {
+    return
+  }
 
-
+  // 检查后端程序是否存在
+  if (configManager.checkBackendExists()) {
+    // 后端程序存在但未运行,尝试启动
     const startSuccess = await backendManager.startBackend()
     if (startSuccess) {
       createMainWindow()
-    } else {
-      createEnvCheckWindow()
+      return
     }
-  } else {
-    createEnvCheckWindow()
   }
+
+  // 后端不存在或启动失败,显示环境检查窗口
+  createEnvCheckWindow()
 }
 
 app.whenReady().then(async () => {
@@ -140,14 +143,14 @@ app.whenReady().then(async () => {
     optimizer.watchWindowShortcuts(window)
   })
 
-  // Initialize managers
+  // 初始化管理器
   configManager = new ConfigManager()
   backendManager = new BackendManager(configManager)
 
-  // Setup IPC handlers
+  // 设置IPC处理
   setupIPC()
 
-  // Handle startup
+  // 处理启动
   await handleStartup()
 
   app.on('activate', async function () {
@@ -168,7 +171,7 @@ app.on('window-all-closed', () => {
   }
 })
 
-// Handle errors
+// 错误处理
 process.on('uncaughtException', (error) => {
   console.error('Uncaught exception:', error)
 })
