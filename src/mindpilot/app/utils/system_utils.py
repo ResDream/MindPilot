@@ -237,7 +237,7 @@ def get_Embeddings(
     # params = dict(model=embed_model)
     from langchain_huggingface import HuggingFaceEmbeddings
     embedding_model_name = r'maidalun1020/bce-embedding-base_v1'
-    embedding_model_kwargs = {'device': 'cuda:0'}
+    embedding_model_kwargs = {'device': 'cpu'}
     embedding_encode_kwargs = {'batch_size': 32, 'normalize_embeddings': True}
 
     try:
