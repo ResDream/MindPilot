@@ -1,6 +1,6 @@
 import sqlite3
 
-from src.mindpilot.app.utils.system_utils import get_resource_path
+from app.utils.system_utils import get_resource_path
 
 
 def get_agent_from_id(agent_id: int):

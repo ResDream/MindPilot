@@ -1,10 +1,12 @@
 import sqlite3
 
-from src.mindpilot.app.utils.system_utils import get_resource_path
+from ..configs import DB_ROOT_PATH
+from app.utils.system_utils import get_resource_path
 
 
 def get_config_from_id(config_id: int):
     db_path = get_resource_path('mindpilot.db')
+    print(db_path)
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
 

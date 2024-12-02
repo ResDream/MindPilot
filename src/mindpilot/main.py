@@ -12,7 +12,8 @@ from fastapi import FastAPI
 from app.configs import HOST, PORT
 from app.utils.colorful import print亮蓝
 from app.configs import KB_INFO
-from src.mindpilot.app.utils.system_utils import get_resource_path
+# from src.mindpilot.app.utils.system_utils import get_resource_path
+from app.utils.system_utils import get_resource_path
 
 os.environ['HF_ENDPOINT'] = "https://hf-mirror.com"
 
