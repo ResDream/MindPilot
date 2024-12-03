@@ -1,3 +1,5 @@
+import os
+
 TOOL_CONFIG = {
         "search_local_knowledgebase": {
             "use": False,
@@ -20,7 +22,7 @@ TOOL_CONFIG = {
                 "bing": {
                     "result_len": 3,
                     "bing_search_url": "https://api.bing.microsoft.com/v7.0/search",
-                    "bing_key": "0f42b09dce16474a81c01562ded071dc",
+                    "bing_key": os.environ.get("BING_SEARCH_KEY", ""),
                 },
             },
             "top_k": 10,
@@ -39,11 +41,11 @@ TOOL_CONFIG = {
         },
         "weather_check": {
             "use": False,
-            "api_key": "SE7CGiRD5dvls08Ub",
+            "api_key": os.environ.get("WEATHER_API_KEY", ""),
         },
         "wolfram": {
             "use": False,
-            "appid": "PWKVLW-6ETR93QX6Q",
+            "appid": os.environ.get("WOLFRAM_APPID", ""),
         },
         "calculate": {
             "use": False,
