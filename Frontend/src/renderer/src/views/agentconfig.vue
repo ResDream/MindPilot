@@ -8,7 +8,7 @@
               icon="weui:back-filled"
               width="40"
               height="40"
-              style="color: #4d4d4d"
+              style="color: #9aa1b2"
               class="back-icon"
             />
             <!--            <img :src="backButton" alt="Back" class="back-icon" />-->
@@ -165,7 +165,7 @@
               }"
               :mixed-files="{ button: { position: 'inside-left' } }"
               :demo="true"
-              style="width: 100%; height: 100%; background-color: #ffffff; border: none"
+              style="width: 100%; height: 100%; background-color: #12151c; border: none"
             >
             </deep-chat>
           </div>
@@ -583,7 +583,7 @@ const tooltipContent = computed(() => {
   padding: 20px;
   display: flex;
   flex-direction: column;
-  border: 1px solid #ddd;
+  border: 1px solid var(--mp-border, #232836);
   border-radius: 10px;
 }
 
@@ -594,7 +594,7 @@ const tooltipContent = computed(() => {
 
 .preview-area {
   flex: 1;
-  background-color: #f9f9f9;
+  background-color: var(--mp-bg-2, #12151c);
   overflow: hidden;
   display: flex;
   position: relative;
@@ -610,14 +610,14 @@ const tooltipContent = computed(() => {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(255, 255, 255, 0.5);
+  background-color: rgba(8, 9, 12, 0.55);
   z-index: 10;
   cursor: not-allowed;
 }
 
 .preview-area {
   flex: 1;
-  background-color: #f9f9f9;
+  background-color: var(--mp-bg-2, #12151c);
   overflow: hidden;
   display: flex;
 }
@@ -637,7 +637,7 @@ deep-chat {
 .config-menu {
   padding: 20px;
   overflow-y: auto; /* Enable vertical scrolling */
-  border: 1px solid #ddd; /* Add this line to add a border */
+  border: 1px solid var(--mp-border, #232836); /* Add this line to add a border */
   border-radius: 10px; /* Optional: to add rounded corners */
 }
 

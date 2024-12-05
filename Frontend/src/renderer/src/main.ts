@@ -4,9 +4,13 @@ import App from './App.vue'
 import { setupRouter } from './router'
 import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
+import 'element-plus/theme-chalk/dark/css-vars.css'
+import './styles/theme.css'
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 import contextmenu from 'v-contextmenu'
 import 'v-contextmenu/dist/themes/default.css'
+
+document.documentElement.classList.add('dark')
 
 const app = createApp(App)
 const pinia = createPinia()

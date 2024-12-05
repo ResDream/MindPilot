@@ -226,8 +226,9 @@ const goBack = () => {
   }
 
   .el-header {
-    background-color: #f5f7fa;
-    color: #333;
+    background-color: var(--mp-bg-1, #0d0f14);
+    color: var(--mp-text-0, #e8eaf0);
+    border-bottom: 1px solid var(--mp-border-soft, #1a1f2b);
   }
 
   .el-main {

@@ -1,0 +1,167 @@
+/* ============================================================
+   MindPilot · ChatGPT 风格设计系统
+   中性灰、无霓虹、低饱和、大圆角
+   ============================================================ */
+
+:root {
+  /* 基础色板（对齐 ChatGPT 暗色） */
+  --mp-bg-0: #212121; /* 主区域 */
+  --mp-bg-1: #171717; /* 侧栏 */
+  --mp-bg-2: #2f2f2f; /* 卡片 / 输入框 / 用户气泡 */
+  --mp-bg-3: #3a3a3a; /* 悬浮 */
+  --mp-border: rgba(255, 255, 255, 0.08);
+  --mp-border-soft: rgba(255, 255, 255, 0.05);
+
+  /* 文字 */
+  --mp-text-0: #ececec;
+  --mp-text-1: #b4b4b4;
+  --mp-text-2: #8e8e8e;
+
+  /* 仅保留极少量语义色 */
+  --mp-accent: #ececec;
+  --mp-accent-soft: rgba(255, 255, 255, 0.08);
+  --mp-green: #6aa84f;
+  --mp-amber: #b4b4b4;
+  --mp-red: #e05d5d;
+  --mp-cyan: #b4b4b4;
+
+  /* 字体 */
+  --mp-font-sans:
+    -apple-system, 'Segoe UI', 'Helvetica Neue', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --mp-font-mono: 'SF Mono', 'Cascadia Code', Consolas, monospace;
+
+  /* 尺寸 */
+  --mp-sidebar-w: 260px;
+  --mp-radius: 16px;
+  --mp-radius-sm: 10px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: var(--mp-bg-0);
+  color: var(--mp-text-0);
+  font-family: var(--mp-font-sans);
+  font-size: 15px;
+  -webkit-font-smoothing: antialiased;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 6px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::selection {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* ---------- Element Plus 深色微调 ---------- */
+html.dark {
+  --el-bg-color: var(--mp-bg-2);
+  --el-bg-color-overlay: #2f2f2f;
+  --el-fill-color-blank: var(--mp-bg-2);
+  --el-border-color: var(--mp-border);
+  --el-border-color-light: var(--mp-border);
+  --el-border-color-lighter: var(--mp-border-soft);
+  --el-border-color-extra-light: var(--mp-border-soft);
+  --el-text-color-primary: var(--mp-text-0);
+  --el-text-color-regular: var(--mp-text-1);
+  --el-text-color-secondary: var(--mp-text-2);
+  --el-color-primary: #ececec;
+  --el-color-primary-light-3: #4a4a4a;
+  --el-color-primary-light-5: #3a3a3a;
+  --el-color-primary-light-7: #2f2f2f;
+  --el-color-primary-light-8: #2a2a2a;
+  --el-color-primary-light-9: #252525;
+  --el-color-primary-dark-2: #ffffff;
+  --el-mask-color: rgba(0, 0, 0, 0.65);
+}
+
+.el-dialog {
+  border-radius: 18px;
+  border: 1px solid var(--mp-border);
+  background: #2a2a2a;
+}
+
+.el-button--primary {
+  --el-button-bg-color: #ececec;
+  --el-button-border-color: #ececec;
+  --el-button-text-color: #212121;
+  --el-button-hover-bg-color: #ffffff;
+  --el-button-hover-border-color: #ffffff;
+  --el-button-hover-text-color: #212121;
+}
+
+.el-message {
+  background: #2f2f2f;
+  border-color: var(--mp-border);
+}
+
+/* 右键菜单深色化 */
+.v-contextmenu,
+.v-contextmenu .v-contextmenu-item {
+  background: #2f2f2f;
+  color: var(--mp-text-1);
+}
+.v-contextmenu {
+  border: 1px solid var(--mp-border);
+  border-radius: 12px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.5);
+}
+.v-contextmenu .v-contextmenu-item:hover {
+  background: var(--mp-bg-3);
+  color: var(--mp-text-0);
+}
+
+/* ---------- 通用动效 ---------- */
+@keyframes mp-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+@keyframes mp-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes mp-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+.mp-fade-up {
+  animation: mp-fade-up 0.2s ease both;
+}
