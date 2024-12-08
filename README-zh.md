@@ -1,88 +1,120 @@
 # <center>MindPilot 🚀
+
 <div align="center">
+
+**跨平台的桌面智能体助手 · Cross-platform Desktop Agent**
 
 **Language**: [English](README.md) | [中文](README-zh.md)
 
 </div>
 
+![MindPilot](docs/images/home.png)
+
 ## 简介
 
-[**MindPilot**](https://github.com/ResDream/MindPilot) 是一个跨平台的多功能智能桌面代理助手，旨在为用户提供便捷高效的智能解决方案。它利用 [**MindSpore**](https://github.com/mindspore-ai/mindspore) 和 [**MindNLP**](https://github.com/mindspore-lab/mindnlp)，将先进的大型语言模型作为核心决策引擎。MindPilot 能够准确地分解、规划、执行、反思和总结用户任务，确保任务高效完成。✨
+[**MindPilot**](https://github.com/ResDream/MindPilot) 是一个跨平台的桌面 Agent 助手。用自然语言下达任务，它会自动拆解、规划、调用工具并总结结果——每一步都在任务时间线上清晰可见。
 
-## 主要功能
+模型层面同时支持**在线模型**（任意 OpenAI 兼容接口）和基于 [**MindSpore**](https://github.com/mindspore-ai/mindspore) / [**MindNLP**](https://github.com/mindspore-lab/mindnlp) 的**本地离线模型**，可在 CPU、GPU 及昇腾设备上运行。
 
-- **跨平台支持** 🌍: 兼容包括 Windows、macOS 和 Linux 在内的主流操作系统。
-- **可定制代理** 🛠️: 用户可以根据需求定制不同的代理身份，提供个性化的智能服务，处理多样化的任务场景。
-- **高效执行** ⚡: 由 MindSpore 和 MindNLP 提供支持的高级算法，确保任务高效完成。
-- **知识库支持** 📚: 集成知识库，为决策提供上下文信息，增强决策能力。
-- **硬件兼容性** 💻: 支持 CPU、GPU 和 Ascend 设备。
+## 功能特性
 
-## 安装
-- 克隆
-   ```bash
-    git clone https://github.com/ResDream/MindPilot.git
-   ```
-- 前端 
-   ```bash
-  # 安装依赖
-   cd Frontend
-   yarn
-  
-  # 为指定平台构建:
-   # Windows 平台
-    $ yarn build:win
-    
-    # macOS 平台
-    $ yarn build:mac
-    
-    # Linux 平台
-    $ yarn build:linux
-   ```
-  
-- 后端 
-    ```bash
-    # 安装依赖
-    pip install -r requirements.txt
-    ```
+- 🧠 **任务驱动的 Agent**——自动拆解与规划任务，思考步骤和工具调用以时间线形式可视化，不再是黑盒。
+- 🛠️ **自定义智能体**——为不同场景创建专属 Agent，可配置人设、温度、工具与知识库。
+- 🌐 **内置工具**——联网搜索（Bing）、arxiv 论文检索、Wolfram、计算器、天气、Shell、本地知识库检索。
+- 📚 **RAG 知识库**——支持 PDF / Word / PPT / CSV / 图片（OCR）解析，中文优化的文本切分，FAISS / Milvus / Elasticsearch 向量库 + BM25 混合检索。
+- 🔌 **OpenAI 兼容**——`base_url` 指向任意兼容端点即可（OpenAI、DeepSeek、通义、本地 vLLM 等）。
+- 🔒 **离线模式**——通过 MindNLP 在自有算力服务器上本地运行 Qwen2.5-72B-Instruct 等开源模型，无需联网。
+- 🖥️ **跨平台**——Windows、macOS、Linux。
 
-## 使用指南
+## 架构
 
-1. **启动 MindPilot**:
-   ```bash
-   # 前端
-   cd Frontend
-   yarn dev
-   
-   # 后端
-   cd src/mindpilot
-   python main.py
-   ```
+```
+┌─────────────────────────┐        ┌──────────────────────────────┐
+│  前端 (Electron)         │  HTTP  │  后端 (FastAPI)              │
+│  Vue 3 + TypeScript     │ ─────▶ │  LangChain Agent Executor    │
+│  任务时间线 UI           │  SSE   │  工具 · RAG · SQLite         │
+└─────────────────────────┘        └──────────────┬───────────────┘
+                                                  │
+                          ┌───────────────────────┼──────────────────┐
+                          ▼                       ▼                  ▼
+                    OpenAI 兼容 API        MindSpore / MindNLP    向量数据库
+                  (GPT, DeepSeek, ...)     （本地离线模型）        FAISS/Milvus/ES
+```
 
-2. **配置搜索功能**:
-    - 打开文件 `src/mindpilot/app/configs/tool_config.py`。在如下代码中填入 Bing 搜索 API:
-   ```python
-    "search_internet": { 
-            "use": False, 
-            "search_engine_name": "bing", 
-            "search_engine_config": { 
-                "bing": { 
-                    "result_len": 3, 
-                    "bing_search_url": "https://api.bing.microsoft.com/v7.0/search", 
-                    "bing_key": "", 
-                }, 
-            }, 
-    ``` 
+## 快速开始
 
-3. **创建并配置代理** 🛠️:
-   - 在应用内选择“创建代理”，并按照提示完成设置。
+### 1. 克隆仓库
 
-4. **启动任务** 📝:
-   - 输入你的任务需求，MindPilot 将自动分解并规划任务。
+```bash
+git clone https://github.com/ResDream/MindPilot.git
+cd MindPilot
+```
 
-## 联系我们 📧
+### 2. 启动后端
 
-如有任何问题或建议，请联系 [2802427218@qq.com](mailto:your-email@example.com)。
+```bash
+pip install -r requirements.txt
+cd src/mindpilot
+python main.py   # 服务地址 http://127.0.0.1:7861
+```
 
----
+### 3. 启动前端
 
-**让我们一起打造更智能的助手！** 🌟
+```bash
+cd Frontend
+yarn
+yarn dev
+```
+
+打包各平台安装包：
+
+```bash
+yarn build:win    # Windows
+yarn build:mac    # macOS
+yarn build:linux  # Linux
+```
+
+### 4. 配置
+
+- **模型**：在侧边栏打开「模型配置」，新增 OpenAI 兼容配置（名称 / base_url / api_key / 模型名），或选择 `Local` 配置使用本地离线推理。
+- **工具密钥**：统一从环境变量读取，仓库中不保存任何密钥：
+
+```bash
+# Windows (PowerShell)
+$env:BING_SEARCH_KEY="你的-bing-key"
+$env:WEATHER_API_KEY="你的-天气-key"
+$env:WOLFRAM_APPID="你的-wolfram-appid"
+
+# macOS / Linux
+export BING_SEARCH_KEY="你的-bing-key"
+export WEATHER_API_KEY="你的-天气-key"
+export WOLFRAM_APPID="你的-wolfram-appid"
+```
+
+### 5. 开始任务
+
+点击「创建智能体」，绑定工具与知识库，然后输入任务。执行过程中的每个思考步骤和工具调用都会实时呈现在时间线上。
+
+## 技术栈
+
+| 层级 | 技术                                                         |
+| ---- | ------------------------------------------------------------ |
+| 前端 | Electron · Vue 3 · TypeScript · Element Plus · Pinia         |
+| 后端 | FastAPI · LangChain · SQLAlchemy · SSE 流式输出              |
+| 模型 | OpenAI 兼容 API · MindSpore + MindNLP（本地）                |
+| 检索 | FAISS / Milvus / Elasticsearch · BM25 混合检索 · RapidOCR    |
+
+## 路线图
+
+- [ ] 时间线逐 token 流式输出
+- [ ] 多智能体协作
+- [ ] 自定义工具插件市场
+- [ ] 昇腾 NPU 优化构建
+
+## 联系我们
+
+如有问题或建议：[2802427218@qq.com](mailto:2802427218@qq.com)
+
+## 许可证
+
+[Apache License 2.0](LICENSE)
