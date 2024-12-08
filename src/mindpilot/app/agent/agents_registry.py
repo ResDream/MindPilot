@@ -45,7 +45,7 @@ def agents_registry(
     agent = create_structured_chat_agent(llm=llm, tools=tools, prompt=prompt)
 
     agent_executor = AgentExecutor(
-        agent=agent, tools=tools, verbose=verbose, callbacks=callbacks, handle_parsing_errors=True
+        agent=agent, tools=tools, verbose=verbose, callbacks=callbacks, handle_parsing_errors=False
     )
 
     return agent_executor

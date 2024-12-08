@@ -1,120 +1,106 @@
-# <center>MindPilot 🚀
+# MindPilot
 
-<div align="center">
+支持本地模型、知识检索和实时执行时间线的桌面 Agent 应用。
 
-**跨平台的桌面智能体助手 · Cross-platform Desktop Agent**
+[English](README.md) · [中文](README-zh.md)
 
-**Language**: [English](README.md) | [中文](README-zh.md)
+![MindPilot：使用演示数据展示多阶段研究与部署任务](docs/images/home.png)
 
-</div>
+图片使用 **mock 演示数据**，展示一个长程任务：读取内部需求、检索研究资料和模型文档、计算部署预算、核查矛盾并整理验收清单。示例用于说明交互流程，内容与预算均为演示设定。
 
-![MindPilot](docs/images/home.png)
+## 功能
 
-## 简介
+- **桌面工作区**：Electron、Vue、TypeScript；管理 Agent、会话、模型配置和知识库。
+- **实时执行**：通过 SSE 显示模型输出、工具输入、执行结果和完成状态；连接中断和执行错误直接显示在会话中。
+- **统一 Agent 流程**：在线与本地模型共用 LangChain structured-chat agent 和用户选择的工具。
+- **中文知识库**：文档加载、中文文本处理、BM25 与向量检索；SQLite 保存会话和结果。
+- **工具**：本地知识检索、arXiv、网页搜索、计算器、shell、天气与 Wolfram，按任务选择。
 
-[**MindPilot**](https://github.com/ResDream/MindPilot) 是一个跨平台的桌面 Agent 助手。用自然语言下达任务，它会自动拆解、规划、调用工具并总结结果——每一步都在任务时间线上清晰可见。
+## 结构
 
-模型层面同时支持**在线模型**（任意 OpenAI 兼容接口）和基于 [**MindSpore**](https://github.com/mindspore-ai/mindspore) / [**MindNLP**](https://github.com/mindspore-lab/mindnlp) 的**本地离线模型**，可在 CPU、GPU 及昇腾设备上运行。
-
-## 功能特性
-
-- 🧠 **任务驱动的 Agent**——自动拆解与规划任务，思考步骤和工具调用以时间线形式可视化，不再是黑盒。
-- 🛠️ **自定义智能体**——为不同场景创建专属 Agent，可配置人设、温度、工具与知识库。
-- 🌐 **内置工具**——联网搜索（Bing）、arxiv 论文检索、Wolfram、计算器、天气、Shell、本地知识库检索。
-- 📚 **RAG 知识库**——支持 PDF / Word / PPT / CSV / 图片（OCR）解析，中文优化的文本切分，FAISS / Milvus / Elasticsearch 向量库 + BM25 混合检索。
-- 🔌 **OpenAI 兼容**——`base_url` 指向任意兼容端点即可（OpenAI、DeepSeek、通义、本地 vLLM 等）。
-- 🔒 **离线模式**——通过 MindNLP 在自有算力服务器上本地运行 Qwen2.5-72B-Instruct 等开源模型，无需联网。
-- 🖥️ **跨平台**——Windows、macOS、Linux。
-
-## 架构
-
-```
-┌─────────────────────────┐        ┌──────────────────────────────┐
-│  前端 (Electron)         │  HTTP  │  后端 (FastAPI)              │
-│  Vue 3 + TypeScript     │ ─────▶ │  LangChain Agent Executor    │
-│  任务时间线 UI           │  SSE   │  工具 · RAG · SQLite         │
-└─────────────────────────┘        └──────────────┬───────────────┘
-                                                  │
-                          ┌───────────────────────┼──────────────────┐
-                          ▼                       ▼                  ▼
-                    OpenAI 兼容 API        MindSpore / MindNLP    向量数据库
-                  (GPT, DeepSeek, ...)     （本地离线模型）        FAISS/Milvus/ES
+```mermaid
+flowchart LR
+    UI[Electron / Vue] -->|HTTP + SSE| API[FastAPI]
+    API --> Agent[LangChain Agent]
+    Agent --> Online[OpenAI 兼容接口]
+    Agent --> Local[MindNLP / MindSpore]
+    Agent --> Tools[工具与知识检索]
+    API --> DB[SQLite]
 ```
 
-## 快速开始
+## 启动
 
-### 1. 克隆仓库
+使用 Python 3.11、Node.js 20。后端和前端分别运行。
 
 ```bash
-git clone https://github.com/ResDream/MindPilot.git
+git clone https://github.com/fanxing-6/MindPilot.git
 cd MindPilot
+python -m venv .venv
 ```
 
-### 2. 启动后端
+激活环境：macOS/Linux 使用 `source .venv/bin/activate`；PowerShell 使用 `.venv\Scripts\Activate.ps1`。macOS 通过 Homebrew 安装 `libmagic`，Linux 安装系统的 `libmagic` 软件包，用于文档类型识别。
 
 ```bash
-pip install -r requirements.txt
+python -m pip install -r requirements.txt
 cd src/mindpilot
-python main.py   # 服务地址 http://127.0.0.1:7861
+python main.py
 ```
 
-### 3. 启动前端
+在仓库根目录打开另一个终端：
 
 ```bash
 cd Frontend
-yarn
-yarn dev
+npx yarn@1.22.22 install --frozen-lockfile
+npm run dev
 ```
 
-打包各平台安装包：
+后端地址为 `127.0.0.1:7861`。打开「模型配置」，建立模型配置，再选择 Agent 与工具。在线配置填写 OpenAI 兼容接口地址、模型名称和 API key。
+
+## 本地模型
+
+在支持目标设备的 MindSpore 2.4 环境中安装 `requirements-local.txt`，模型平台选择 **Local**。
+
+Linux x86_64、Python 3.11 的 MindSpore 2.4.0 安装命令：
 
 ```bash
-yarn build:win    # Windows
-yarn build:mac    # macOS
-yarn build:linux  # Linux
+python -m pip install https://ms-release.obs.cn-north-4.myhuaweicloud.com/2.4.0/MindSpore/unified/x86_64/mindspore-2.4.0-cp311-cp311-linux_x86_64.whl
+python -m pip install -r requirements-local.txt
 ```
 
-### 4. 配置
+其他设备使用对应的官方 MindSpore 2.4.0 安装包。桌面端可以运行在 macOS，本地推理需要匹配 MindSpore 支持的后端环境。
 
-- **模型**：在侧边栏打开「模型配置」，新增 OpenAI 兼容配置（名称 / base_url / api_key / 模型名），或选择 `Local` 配置使用本地离线推理。
-- **工具密钥**：统一从环境变量读取，仓库中不保存任何密钥：
+- Qwen2.5-Instruct：0.5B、1.5B、3B、7B、14B、32B、72B。
+- Qwen2.5-Coder-32B-Instruct、QwQ-32B-Preview。
+- 保留 MiniCPM-2B 与 Qwen2-0.5B 配置。
+- 模型字段支持输入本地目录，目录需要包含 `config.json`、tokenizer 文件和完整权重。
+
+模型目录采用 **2024 年 12 月 8 日**之前的公开版本。Qwen2.5-72B-Instruct 是目录中规模最大的通用指令模型，Coder 与 QwQ 分别面向代码和推理任务。
+
+同一个模型复用已加载的权重，切换模型时重新加载。生成过程顺序执行，聊天历史与工具结果使用 tokenizer 的聊天模板；`max_tokens` 控制新增 token 数量。本地模型在每轮生成结束后显示结果；在线模型还支持逐段文本输出。
+
+通过 `MINDPILOT_LOCAL_DEVICE` 指定当前 MindSpore 支持的 `CPU`、`GPU` 或 `Ascend`；通过 `MINDPILOT_LOCAL_DTYPE` 指定 `float16`、`float32` 或 `bfloat16`。72.7B 模型的 FP16 权重约占 135.4 GiB，还需要 KV cache 和运行内存。选择模型不会自动执行量化或多设备分配。
+
+离线使用前下载完整模型并选择本地目录。网页、arXiv、天气与 Wolfram 工具需要联网。
+
+## 配置
+
+外部工具凭证读取环境变量 `BING_SEARCH_KEY`、`WEATHER_API_KEY`、`WOLFRAM_APPID`。模型凭证保存在本地模型配置中。shell 工具使用后端进程的用户权限执行命令。
+
+## 开发与测试
 
 ```bash
-# Windows (PowerShell)
-$env:BING_SEARCH_KEY="你的-bing-key"
-$env:WEATHER_API_KEY="你的-天气-key"
-$env:WOLFRAM_APPID="你的-wolfram-appid"
-
-# macOS / Linux
-export BING_SEARCH_KEY="你的-bing-key"
-export WEATHER_API_KEY="你的-天气-key"
-export WOLFRAM_APPID="你的-wolfram-appid"
+python -m pip install -r requirements-test.txt
+python -m pytest --basetemp=work/pytest -q
+python -m compileall -q src
+cd Frontend
+npm test
+npm run build
 ```
 
-### 5. 开始任务
+测试覆盖模型选择、生成参数、真实 Runnable 与工具事件、SQLite 保存和 SSE 处理。GitHub Actions 执行后端检查，以及 Linux、Windows、macOS 的前端测试与构建。桌面安装包分别使用 `npm run build:win`、`npm run build:mac`、`npm run build:linux`；Python 后端单独运行。
 
-点击「创建智能体」，绑定工具与知识库，然后输入任务。执行过程中的每个思考步骤和工具调用都会实时呈现在时间线上。
-
-## 技术栈
-
-| 层级 | 技术                                                         |
-| ---- | ------------------------------------------------------------ |
-| 前端 | Electron · Vue 3 · TypeScript · Element Plus · Pinia         |
-| 后端 | FastAPI · LangChain · SQLAlchemy · SSE 流式输出              |
-| 模型 | OpenAI 兼容 API · MindSpore + MindNLP（本地）                |
-| 检索 | FAISS / Milvus / Elasticsearch · BM25 混合检索 · RapidOCR    |
-
-## 路线图
-
-- [ ] 时间线逐 token 流式输出
-- [ ] 多智能体协作
-- [ ] 自定义工具插件市场
-- [ ] 昇腾 NPU 优化构建
-
-## 联系我们
-
-如有问题或建议：[2802427218@qq.com](mailto:2802427218@qq.com)
+重新生成 README 示例图：运行 `npm run demo`，在另一个前端终端执行 `npx playwright install chromium` 和 `npm run screenshot`。示例复用实际 Vue 会话组件，演示数据独立维护。
 
 ## 许可证
 
-[Apache License 2.0](LICENSE)
+[Apache License 2.0](LICENSE)。模型权重遵循各自许可证。

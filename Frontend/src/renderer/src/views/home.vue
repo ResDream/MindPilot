@@ -73,6 +73,7 @@
           </el-dropdown>
         </div>
         <div class="mp-topbar-right">
+          <span v-if="demoMode" class="mp-demo-label">演示数据 · 多阶段任务</span>
           <span v-if="selectedAgentId !== -1" class="mp-agent-hint">{{ headerText }}</span>
         </div>
       </header>
@@ -256,9 +257,7 @@
                 placeholder="请选择配置名称"
                 @change="syncLocalConfig"
               >
-                <el-option label="MiniCPM-2B" value="MiniCPM-2B"></el-option>
-                <el-option label="Qwen2-0.5B" value="Qwen2-0.5B"></el-option>
-                <el-option label="Qwen2.5-72B-Instruct" value="Qwen2.5-72B-Instruct"></el-option>
+                <el-option v-for="model in localModels" :key="model" :label="model" :value="model" />
               </el-select>
             </el-form-item>
             <el-form-item label="平台">
@@ -282,11 +281,10 @@
               <el-select
                 v-if="configManagementForm.platform === 'LOCAL'"
                 v-model="configManagementForm.llm_model.model"
+                filterable allow-create default-first-option
                 @change="syncLocalConfig"
               >
-                <el-option label="MiniCPM-2B" value="MiniCPM-2B"></el-option>
-                <el-option label="Qwen2-0.5B" value="Qwen2-0.5B"></el-option>
-                <el-option label="Qwen2.5-72B-Instruct" value="Qwen2.5-72B-Instruct"></el-option>
+                <el-option v-for="model in localModels" :key="model" :label="model" :value="model" />
               </el-select>
               <el-input v-else v-model="configManagementForm.llm_model.model" />
             </el-form-item>
@@ -306,6 +304,10 @@
 </template>
 
 <script setup lang="ts">
+import { localModels, readConversationStream, type ConversationEvent } from "./conversationStream"
+import { demoTask, demoEvents } from "./demoConversation"
+import { marked } from "marked"
+import DOMPurify from "dompurify"
 import { useRouter } from 'vue-router'
 import uploadIcon from '../assets/mingcute--tool-line.png'
 import axios from 'axios'
@@ -338,6 +340,7 @@ interface BackendMessage {
 
 interface DisplayItem {
   id: number
+  runId?: string
   kind: 'user' | 'text' | 'thought' | 'tool'
   text?: string
   toolName?: string
@@ -346,6 +349,7 @@ interface DisplayItem {
 
 /*********************************** 状态 ***********************************/
 const router = useRouter()
+const demoMode = import.meta.env.VITE_MINDPILOT_DEMO === "true"
 const agents = ref<Agent[]>([])
 const conversations = ref<Conversation[]>([])
 const currentConversation = ref<Conversation | null>(null)
@@ -353,6 +357,7 @@ const displayItems = ref<DisplayItem[]>([])
 const selectedAgentId = ref<number>(-1)
 const inputText = ref('')
 const sending = ref(false)
+let requestController: AbortController | null = null
 const elapsed = ref(0)
 const collapsed = reactive<Record<number, boolean>>({})
 const scrollRef = ref<HTMLDivElement | null>(null)
@@ -397,6 +402,16 @@ const inputPlaceholder = computed(() => {
 
 /*********************************** 初始化 ***********************************/
 onMounted(async () => {
+  if (demoMode) {
+    chatSettings.value.config_name = "Qwen2.5-72B-Instruct"
+    agents.value = [{ agent_id: 0, agent_name: "研发方案研究员", agent_abstract: "资料检索与预算核算",
+      agent_info: "", temperature: 0.3, max_tokens: 4096, tool_config: [] }]
+    selectedAgentId.value = 0
+    localConversationConfig.value.agent_id = 0
+    displayItems.value.push({ id: ++itemSeq, kind: "user", text: demoTask })
+    for (const event of demoEvents) applyConversationEvent(event as ConversationEvent)
+    return
+  }
   try {
     await fetchAllConfigs()
     if (configs.value.length > 0 && configs.value[0].config_id) {
@@ -415,6 +430,7 @@ onMounted(async () => {
 })
 
 onUnmounted(() => {
+  requestController?.abort()
   if (timer) clearInterval(timer)
 })
 
@@ -464,18 +480,12 @@ const prettyJson = (json?: string) => {
   }
 }
 
-/** 轻量 Markdown 渲染：先转义再处理加粗/行内代码，防注入 */
-const escapeHtml = (s: string) =>
-  s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-
 const renderMd = (text?: string) => {
   if (!text) return ''
-  return escapeHtml(text)
-    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-    .replace(/`([^`\n]+)`/g, '<code class="mono mp-inline-code">$1</code>')
+  return DOMPurify.sanitize(marked.parse(text, { async: false }))
 }
 
-/** 后端消息数组 → 展示项（对齐旧版 deep-chat 的渲染规则） */
+/** 将保存的消息转换为时间线记录。 */
 const mapMessages = (msgs: BackendMessage[], appendUser?: string) => {
   const items: DisplayItem[] = []
   if (appendUser !== undefined) {
@@ -537,6 +547,7 @@ const updateConfigFromAgent = (agent: Agent) => {
 }
 
 const handleOptionClick = async (_event: MouseEvent, agent: Agent) => {
+  if (sending.value || demoMode) return
   try {
     await createConversation(agent.agent_id as number)
     selectedAgentId.value = agent.agent_id as number
@@ -606,6 +617,7 @@ const fetchConversations = async () => {
 }
 
 const handleNewBlankConversation = async () => {
+  if (sending.value || demoMode) return
   try {
     await createConversation(-1)
     selectedAgentId.value = -1
@@ -616,6 +628,7 @@ const handleNewBlankConversation = async () => {
 }
 
 const handleSwitchConversation = async (conversation: Conversation) => {
+  if (sending.value || demoMode) return
   try {
     const response = await axios.get(`${API_BASE}/conversation/${conversation.conversation_id}`)
     const detail = response.data.data
@@ -669,6 +682,23 @@ const handleDeleteConversation = async () => {
 }
 
 /*********************************** 发送消息 ***********************************/
+const applyConversationEvent = (event: ConversationEvent) => {
+  if (event.type === "model_start") {
+    displayItems.value.push({ id: ++itemSeq, runId: event.run_id, kind: "thought", text: "" })
+  } else if (event.type === "token" || event.type === "model_end") {
+    const item = displayItems.value.find((item) => item.runId === event.run_id)
+    if (item) item.text = event.type === "token" ? (item.text || "") + event.text : event.text
+  } else if (event.type === "tool_start") {
+    displayItems.value.push({ id: ++itemSeq, runId: event.run_id, kind: "tool",
+      toolName: event.name, json: JSON.stringify(event.input, null, 2) })
+  } else if (event.type === "tool_end") {
+    displayItems.value.push({ id: ++itemSeq, kind: "text", text: event.text })
+  } else if (event.type === "answer") {
+    displayItems.value.push({ id: ++itemSeq, kind: "text", text: event.text })
+  }
+  scrollToBottom()
+}
+
 const handleSend = async () => {
   const text = inputText.value.trim()
   if (!text || sending.value || !currentConversation.value) return
@@ -681,9 +711,13 @@ const handleSend = async () => {
   scrollToBottom()
 
   try {
-    const response = await axios.post(
-      `${API_BASE}/conversation/${currentConversation.value.conversation_id}/messages`,
-      {
+    const conversationId = currentConversation.value.conversation_id
+    requestController = new AbortController()
+    const response = await fetch(
+      `${API_BASE}/conversation/${conversationId}/messages/stream`,
+      { method: "POST", signal: requestController.signal,
+        headers: { Accept: "text/event-stream", "Content-Type": "application/json" },
+        body: JSON.stringify({
         role: 'user',
         agent_id: localConversationConfig.value.agent_id,
         config_id: localConversationConfig.value.config_id,
@@ -691,29 +725,27 @@ const handleSend = async () => {
         tool_config: selectedTools.value,
         temperature: localConversationConfig.value.temperature,
         max_tokens: localConversationConfig.value.max_tokens
-      },
-      { headers: { accept: 'application/json', 'Content-Type': 'application/json' } }
+        }) }
     )
-    if (response.data.code === 200) {
-      displayItems.value.push(...mapMessages(response.data.data || []))
+    await readConversationStream(response, applyConversationEvent)
       // 刷新标题等信息
       const detail = await axios.get(
-        `${API_BASE}/conversation/${currentConversation.value.conversation_id}`
+        `${API_BASE}/conversation/${conversationId}`
       )
       const idx = conversations.value.findIndex(
-        (c) => c.conversation_id === currentConversation.value!.conversation_id
+        (c) => c.conversation_id === conversationId
       )
       if (idx !== -1) {
         conversations.value[idx] = { ...conversations.value[idx], ...detail.data.data }
         currentConversation.value = conversations.value[idx]
       }
-    } else {
-      ElMessage.error(response.data.msg || '发送失败')
-    }
   } catch (e) {
     console.error(e)
-    ElMessage.error('发送消息时发生错误，请重试')
+    const message = e instanceof Error ? e.message : "发送消息失败"
+    displayItems.value.push({ id: ++itemSeq, kind: "text", text: message })
+    ElMessage.error(message)
   } finally {
+    requestController = null
     sending.value = false
     if (timer) {
       clearInterval(timer)
@@ -773,13 +805,13 @@ const handlePlatformChange = (platform: string) => {
   if (platform === 'LOCAL') {
     configManagementForm.base_url = ''
     configManagementForm.api_key = ''
-    configManagementForm.config_name = 'MiniCPM-2B'
-    configManagementForm.llm_model.model = 'MiniCPM-2B'
+    configManagementForm.config_name = "Qwen2.5-7B-Instruct"
+    configManagementForm.llm_model.model = "Qwen2.5-7B-Instruct"
   } else {
-    if (['MiniCPM-2B', 'Qwen2-0.5B'].includes(configManagementForm.config_name)) {
+    if (localModels.includes(configManagementForm.config_name)) {
       configManagementForm.config_name = ''
     }
-    if (['MiniCPM-2B', 'Qwen2-0.5B'].includes(configManagementForm.llm_model.model)) {
+    if (localModels.includes(configManagementForm.llm_model.model)) {
       configManagementForm.llm_model.model = ''
     }
   }
@@ -798,6 +830,13 @@ const toKBConfig = () => router.push('/kbconfig')
 </script>
 
 <style scoped>
+.mp-demo-label {
+  padding: 6px 12px;
+  border: 1px solid #436354;
+  border-radius: 6px;
+  color: #b9dcc6;
+  font-size: 12px;
+}
 .mono {
   font-family: var(--mp-font-mono);
 }

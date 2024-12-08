@@ -1,6 +1,7 @@
 from __future__ import annotations
 from fastapi import APIRouter, Request
-from ..conversation.conversation_api import add_conversation, list_conversations, get_conversation, delete_conversation, send_messages, debug_messages
+from ..conversation.conversation_api import add_conversation, list_conversations, get_conversation, delete_conversation, debug_messages
+from ..conversation.streaming import send_messages, stream_messages
 
 conversation_router = APIRouter(prefix="/api/conversation", tags=["对话接口"])
 
@@ -33,3 +34,8 @@ conversation_router.post(
     "/debug",
     summary="调试对话",
 )(debug_messages)
+
+conversation_router.post(
+    "/{conversation_id}/messages/stream",
+    summary="实时发送消息",
+)(stream_messages)

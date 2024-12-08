@@ -279,11 +279,11 @@ def make_text_splitter(splitter_name, chunk_size, chunk_overlap):
                     == "gpt2"
                 ):
                     from langchain.text_splitter import CharacterTextSplitter
-                    from mindnlp.transformers import GPT2TokenizerFast
+                    from transformers import GPT2TokenizerFast
 
                     tokenizer = GPT2TokenizerFast.from_pretrained("gpt2")
                 else:  # 字符长度加载
-                    from mindnlp.transformers import AutoTokenizer
+                    from transformers import AutoTokenizer
 
                     tokenizer = AutoTokenizer.from_pretrained(
                         text_splitter_dict[splitter_name]["tokenizer_name_or_path"],

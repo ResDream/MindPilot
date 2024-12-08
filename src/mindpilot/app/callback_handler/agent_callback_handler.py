@@ -128,7 +128,7 @@ class AgentExecutorAsyncIteratorCallbackHandler(AsyncIteratorCallbackHandler):
         data = {
             "run_id": str(run_id),
             "status": AgentStatus.tool_end,
-            "tool_output": output.to_serializable_data(),
+            "tool_output": output.to_serializable_data() if hasattr(output, "to_serializable_data") else str(output),
         }
         # self.done.clear()
         self.queue.put_nowait(dumps(data))
@@ -198,5 +198,4 @@ class AgentExecutorAsyncIteratorCallbackHandler(AsyncIteratorCallbackHandler):
             tags: List[str] | None = None,
             **kwargs: Any,
     ) -> None:
-        self.done.set()
         self.out = True

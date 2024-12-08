@@ -119,20 +119,8 @@ def get_ChatOpenAI(
         max_tokens=max_tokens,
         **kwargs,
     )
-    try:
-        params.update(
-            openai_api_base=base_url,
-            openai_api_key=api_key,
-            openai_proxy="",
-
-        )
-        model = ChatOpenAI(**params)
-    except Exception as e:
-        logger.error(
-            f"failed to create ChatOpenAI for model: {model_name}.", exc_info=True
-        )
-        model = None
-    return model
+    params.update(openai_api_base=base_url, openai_api_key=api_key, openai_proxy="")
+    return ChatOpenAI(**params)
 
 
 def get_tool(name: str = None) -> Union[BaseTool, Dict[str, BaseTool]]:
@@ -154,12 +142,6 @@ async def wrap_done(fn: Awaitable, event: asyncio.Event):
     """Wrap an awaitable with a event to signal when it's done or an exception is raised."""
     try:
         await fn
-    except Exception as e:
-        logging.exception(e)
-        msg = f"Caught exception: {e}"
-        logger.error(
-            f"{e.__class__.__name__}: {msg}", exc_info=e
-        )
     finally:
         # Signal the aiter to stop.
         event.set()

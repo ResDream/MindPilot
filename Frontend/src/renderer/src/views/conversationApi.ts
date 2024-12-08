@@ -2,7 +2,7 @@ import { reactive, ref, watch } from 'vue'
 import axios from 'axios'
 import { ElMessage } from 'element-plus'
 import { clearMessageElement, extractFirstJSON } from './utils'
-import { Signals } from 'deep-chat/dist/types/handler'
+import type { Signals } from 'deep-chat/dist/types/handler'
 import type { DeepChat } from 'deep-chat'
 import { generateAssistantWithRandomID } from '../utils/tools'
 import { Agent } from './type'
@@ -216,7 +216,7 @@ export function useConversation() {
             }
           } else if (responseMessages[i].agent_status === -1) {
             signals.onResponse({
-              text: responseMessages[0].text,
+              text: responseMessages[i].text,
               role: generateAssistantWithRandomID()
             })
           } else if (responseMessages[i].agent_status === 7) {
@@ -284,7 +284,7 @@ export function useConversation() {
             }
           } else if (responseMessages[i].agent_status === -1) {
             signals.onResponse({
-              text: responseMessages[0].text,
+              text: responseMessages[i].text,
               role: generateAssistantWithRandomID()
             })
           } else if (responseMessages[i].agent_status === 7) {

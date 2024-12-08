@@ -74,7 +74,7 @@
                 v-model="agentForm.agent_info"
                 type="textarea"
                 :placeholder="configPlaceHolder"
-                rows="4"
+                :rows="4"
               ></el-input>
             </el-form-item>
             <el-form-item label="能力配置">
@@ -205,7 +205,7 @@ import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
 import type { DeepChat } from 'deep-chat'
 
-import { Signals } from 'deep-chat/dist/types/handler'
+import type { Signals } from 'deep-chat/dist/types/handler'
 import { ModelConfig, useConfigManagement } from './configManagement'
 
 let chatElementRef: DeepChat | null = null

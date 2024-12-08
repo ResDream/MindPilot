@@ -1,6 +1,6 @@
 {
-  "appId": "com.electron.app",
-  "productName": "mindpilotui",
+  "appId": "io.github.fanxing6.mindpilot",
+  "productName": "MindPilot",
   "directories": {
     "buildResources": "build"
   },
@@ -53,15 +53,11 @@
       "snap",
       "deb"
     ],
-    "maintainer": "electronjs.org",
+    "maintainer": "fanxing",
     "category": "Utility"
   },
   "appImage": {
     "artifactName": "${name}-${version}.${ext}"
   },
-  "npmRebuild": false,
-  "publish": {
-    "provider": "generic",
-    "url": "https://example.com/auto-updates"
-  }
+  "npmRebuild": false
 }

@@ -163,7 +163,7 @@ def main():
             ''')
         conn.commit()
 
-        cursor.execute('''
+    cursor.execute('''
         CREATE TABLE IF NOT EXISTS model_configs (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             config_name TEXT NOT NULL,

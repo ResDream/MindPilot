@@ -1,120 +1,102 @@
-# <center>MindPilot 🚀
+# MindPilot
 
-<div align="center">
+Desktop agents with local models, knowledge retrieval and a live execution timeline.
 
-**跨平台的桌面智能体助手 · Cross-platform Desktop Agent**
+[English](README.md) · [中文](README-zh.md)
 
-**Language**: [English](README.md) | [中文](README-zh.md)
+![MindPilot: a multi-stage research and deployment task using demonstration data](docs/images/home.png)
 
-</div>
-
-![MindPilot](docs/images/home.png)
-
-## Introduction
-
-[**MindPilot**](https://github.com/ResDream/MindPilot) is a cross-platform desktop Agent assistant. Give it a task in natural language, and it will decompose, plan, call tools, and summarize the result — with every step visible in a clean task timeline.
-
-It supports both **online models** (any OpenAI-compatible API) and **local offline models** powered by [**MindSpore**](https://github.com/mindspore-ai/mindspore) and [**MindNLP**](https://github.com/mindspore-lab/mindnlp), running on CPU, GPU, or Ascend devices.
+The example uses **mock demonstration data** to illustrate a long-running task: checking internal requirements, retrieving research and model documentation, calculating deployment budgets, resolving conflicting constraints and producing an acceptance checklist. It is an interaction example, not a model benchmark or a recorded inference run.
 
 ## Features
 
-- 🧠 **Task-driven Agent** — tasks are decomposed and planned automatically; thinking steps and tool calls are visualized as a timeline instead of a black box.
-- 🛠️ **Custom Agents** — create agents with their own persona, temperature, tools, and knowledge bases for different scenarios.
-- 🌐 **Built-in Tools** — web search (Bing), arXiv, Wolfram, calculator, weather, shell, and local knowledge base retrieval.
-- 📚 **RAG Knowledge Base** — PDF / Word / PPT / CSV / image (OCR) parsing, Chinese-optimized text splitting, FAISS / Milvus / Elasticsearch vector stores with hybrid BM25 retrieval.
-- 🔌 **OpenAI-compatible** — point `base_url` at any compatible endpoint (OpenAI, DeepSeek, Qwen, local vLLM, etc.).
-- 🔒 **Offline Mode** — run open-source models such as Qwen2.5-72B-Instruct locally through MindNLP on your own GPU servers, no network required.
-- 🖥️ **Cross-platform** — Windows, macOS, and Linux.
+- **Desktop workspace**: Electron, Vue and TypeScript; agents, conversations, model profiles and knowledge bases.
+- **Live execution**: SSE delivers model output, tool inputs, tool results and completion events. Connection failures appear in the conversation.
+- **Shared agent execution**: online and local models use the same LangChain structured-chat agent and selected tools.
+- **Local knowledge**: document loading, Chinese text processing, BM25 and vector retrieval, and SQLite conversation storage.
+- **Tools**: knowledge search, arXiv, web search, calculator, shell, weather and Wolfram. Enable only the tools needed for a task.
 
 ## Architecture
 
-```
-┌─────────────────────────┐        ┌──────────────────────────────┐
-│  Frontend (Electron)    │  HTTP  │  Backend (FastAPI)           │
-│  Vue 3 + TypeScript     │ ─────▶ │  LangChain Agent Executor    │
-│  Task timeline UI       │  SSE   │  Tools · RAG · SQLite        │
-└─────────────────────────┘        └──────────────┬───────────────┘
-                                                  │
-                          ┌───────────────────────┼──────────────────┐
-                          ▼                       ▼                  ▼
-                  OpenAI-compatible API    MindSpore / MindNLP   Vector Stores
-                  (GPT, DeepSeek, ...)     (local offline LLM)   FAISS/Milvus/ES
+```mermaid
+flowchart LR
+    UI[Electron / Vue] -->|HTTP + SSE| API[FastAPI]
+    API --> Agent[LangChain Agent]
+    Agent --> Online[OpenAI-compatible API]
+    Agent --> Local[MindNLP / MindSpore]
+    Agent --> Tools[Tools / Knowledge retrieval]
+    API --> DB[SQLite]
 ```
 
-## Quick Start
+## Run
 
-### 1. Clone
+Use Python 3.11 and Node.js 20. Start the backend and frontend in separate terminals.
 
 ```bash
-git clone https://github.com/ResDream/MindPilot.git
+git clone https://github.com/fanxing-6/MindPilot.git
 cd MindPilot
-```
-
-### 2. Backend
-
-```bash
-pip install -r requirements.txt
+python -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
 cd src/mindpilot
-python main.py   # serves on http://127.0.0.1:7861
+python main.py
 ```
 
-### 3. Frontend
+Activate the virtual environment before installation (`source .venv/bin/activate` on macOS/Linux, `.venv\Scripts\Activate.ps1` in PowerShell). On macOS install `libmagic` using Homebrew; on Linux install the system `libmagic` package for document type detection.
 
 ```bash
 cd Frontend
-yarn
-yarn dev
+npx yarn@1.22.22 install --frozen-lockfile
+npm run dev
 ```
 
-To build installers:
+The backend listens on `127.0.0.1:7861`. Open **模型配置** to create a model profile, then choose an agent and its tools. OpenAI-compatible profiles require an API base URL, model name and key.
+
+## Local models
+
+Install `requirements-local.txt` in a Python environment supported by MindSpore 2.4 and the target device. Select **Local** in model configuration.
+
+For Linux x86_64 with Python 3.11, install the official MindSpore wheel first:
 
 ```bash
-yarn build:win    # Windows
-yarn build:mac    # macOS
-yarn build:linux  # Linux
+python -m pip install https://ms-release.obs.cn-north-4.myhuaweicloud.com/2.4.0/MindSpore/unified/x86_64/mindspore-2.4.0-cp311-cp311-linux_x86_64.whl
+python -m pip install -r requirements-local.txt
 ```
 
-### 4. Configure
+Other devices require the matching official MindSpore 2.4.0 package. The desktop frontend can run on macOS; local inference requires a supported backend environment.
 
-- **Model**: open 「模型配置」 in the sidebar, add an OpenAI-compatible config (name / base_url / api_key / model), or pick a `Local` config for offline inference.
-- **Tools**: API keys are read from environment variables — no keys are stored in the repo:
+- Qwen2.5-Instruct: 0.5B, 1.5B, 3B, 7B, 14B, 32B and 72B.
+- Qwen2.5-Coder-32B-Instruct and QwQ-32B-Preview.
+- Existing MiniCPM-2B and Qwen2-0.5B profiles remain available.
+- A local directory containing `config.json`, tokenizer files and weights can be entered in the model field.
+
+The model catalog follows releases available by **December 8, 2024**. Qwen2.5-72B-Instruct is the largest general instruction model in this catalog; Coder and QwQ target coding and reasoning respectively.
+
+Weights are loaded once and reused until the model changes. Generation is serialized to prevent concurrent model mutation. Chat history and agent tool results use the tokenizer chat template; `max_tokens` limits newly generated tokens. Local model responses appear after each generation; online streaming profiles also emit incremental text.
+
+Set `MINDPILOT_LOCAL_DEVICE` to `CPU`, `GPU` or `Ascend` as supported by the installed MindSpore build. Set `MINDPILOT_LOCAL_DTYPE` to `float16`, `float32` or `bfloat16` for the device. A 72.7B model requires roughly 135.4 GiB for FP16 weights alone, plus KV cache and runtime memory; model selection does not provide quantization or automatic multi-device distribution.
+
+For offline use, download the complete model beforehand and select its local directory. Web, arXiv, weather and Wolfram tools require network access.
+
+## Configuration
+
+External tool credentials are read from `BING_SEARCH_KEY`, `WEATHER_API_KEY` and `WOLFRAM_APPID`. Model credentials are saved in the local model profile. Shell tools execute with the backend user permissions.
+
+## Development
 
 ```bash
-# Windows (PowerShell)
-$env:BING_SEARCH_KEY="your-bing-key"
-$env:WEATHER_API_KEY="your-weather-key"
-$env:WOLFRAM_APPID="your-wolfram-appid"
-
-# macOS / Linux
-export BING_SEARCH_KEY="your-bing-key"
-export WEATHER_API_KEY="your-weather-key"
-export WOLFRAM_APPID="your-wolfram-appid"
+python -m pip install -r requirements-test.txt
+python -m pytest --basetemp=work/pytest -q
+python -m compileall -q src
+cd Frontend
+npm test
+npm run build
 ```
 
-### 5. Run a task
+Tests cover model selection, generation settings, real Runnable/tool events, SQLite persistence and SSE handling. GitHub Actions runs backend checks and frontend tests/builds on Linux, Windows and macOS. Desktop packaging commands are `npm run build:win`, `npm run build:mac` and `npm run build:linux`; the Python backend runs separately.
 
-Create an agent (「创建智能体」), attach tools and a knowledge base, then type your task. MindPilot shows each thinking step and tool call in the timeline as it works.
-
-## Tech Stack
-
-| Layer     | Stack                                                        |
-| --------- | ------------------------------------------------------------ |
-| Frontend  | Electron · Vue 3 · TypeScript · Element Plus · Pinia         |
-| Backend   | FastAPI · LangChain · SQLAlchemy · SSE streaming             |
-| LLM       | OpenAI-compatible API · MindSpore + MindNLP (local)          |
-| Retrieval | FAISS / Milvus / Elasticsearch · BM25 hybrid · RapidOCR      |
-
-## Roadmap
-
-- [ ] Streaming token-by-token output in the timeline
-- [ ] Multi-agent collaboration
-- [ ] Plugin marketplace for custom tools
-- [ ] Ascend NPU optimized builds
-
-## Contact
-
-Questions or suggestions: [2802427218@qq.com](mailto:2802427218@qq.com)
+To regenerate the README illustration, run `npm run demo`, then `npx playwright install chromium` and `npm run screenshot` in another frontend terminal. The demonstration uses the actual Vue conversation component with a separate set of labeled example data.
 
 ## License
 
-[Apache License 2.0](LICENSE)
+[Apache License 2.0](LICENSE). Model weights retain their own licenses.

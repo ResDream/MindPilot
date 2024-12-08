@@ -1,6 +1,3 @@
-// @ts-nocheck
-/* eslint-disable */
-
 <script setup lang="ts">
 import { IconJson } from '../data'
 import { cloneDeep, isAllEmpty } from '@pureadmin/utils'
@@ -15,7 +12,7 @@ defineOptions({
   name: 'IconSelect'
 })
 
-const inputValue = defineModel({ type: String })
+const inputValue = defineModel({ type: String, default: "" })
 
 const iconList = ref(IconJson)
 const icon = ref()
@@ -59,6 +56,7 @@ const iconItemStyle = computed((): ParameterCSSProperties => {
         color: 'var(--el-color-primary)'
       }
     }
+    return undefined
   }
 })
 

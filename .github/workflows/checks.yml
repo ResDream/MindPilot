@@ -1,0 +1,32 @@
+name: Checks
+on: [push, pull_request]
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -r requirements-test.txt
+      - run: python -m pytest --basetemp=work/pytest -q
+      - run: python -m compileall -q src
+  frontend:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        working-directory: Frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: yarn
+          cache-dependency-path: Frontend/yarn.lock
+      - run: npx yarn@1.22.22 install --frozen-lockfile --ignore-scripts
+      - run: npm test
+      - run: npm run build
