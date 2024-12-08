@@ -4,9 +4,9 @@ Desktop agents with local models, knowledge retrieval and a live execution timel
 
 [English](README.md) · [中文](README-zh.md)
 
-![MindPilot: a multi-stage research and deployment task using demonstration data](docs/images/home.png)
+![MindPilot: a multi-stage research and deployment task](docs/images/home.png)
 
-The example uses **mock demonstration data** to illustrate a long-running task: checking internal requirements, retrieving research and model documentation, calculating deployment budgets, resolving conflicting constraints and producing an acceptance checklist. It is an interaction example, not a model benchmark or a recorded inference run.
+This example follows a long-running task: checking internal requirements, retrieving research and model documentation, calculating deployment budgets, resolving conflicting constraints and producing an acceptance checklist.
 
 ## Features
 
@@ -93,9 +93,9 @@ npm test
 npm run build
 ```
 
-Tests cover model selection, generation settings, real Runnable/tool events, SQLite persistence and SSE handling. GitHub Actions runs backend checks and frontend tests/builds on Linux, Windows and macOS. Desktop packaging commands are `npm run build:win`, `npm run build:mac` and `npm run build:linux`; the Python backend runs separately.
+Tests cover model selection, generation settings, real Runnable/tool events, SQLite persistence and SSE handling. Desktop packaging commands are `npm run build:win`, `npm run build:mac` and `npm run build:linux`; the Python backend runs separately.
 
-To regenerate the README illustration, run `npm run demo`, then `npx playwright install chromium` and `npm run screenshot` in another frontend terminal. The demonstration uses the actual Vue conversation component with a separate set of labeled example data.
+To regenerate the README illustration, run `npm run demo`, then `npx playwright install chromium` and `npm run screenshot` in another frontend terminal. The screenshot uses the Vue conversation component.
 
 ## License
 

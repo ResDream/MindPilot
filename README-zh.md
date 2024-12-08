@@ -4,9 +4,9 @@
 
 [English](README.md) · [中文](README-zh.md)
 
-![MindPilot：使用演示数据展示多阶段研究与部署任务](docs/images/home.png)
+![MindPilot：多阶段研究与部署任务](docs/images/home.png)
 
-图片使用 **mock 演示数据**，展示一个长程任务：读取内部需求、检索研究资料和模型文档、计算部署预算、核查矛盾并整理验收清单。示例用于说明交互流程，内容与预算均为演示设定。
+示例展示一个长程任务：读取内部需求、检索研究资料和模型文档、计算部署预算、核查矛盾并整理验收清单。
 
 ## 功能
 
@@ -97,9 +97,9 @@ npm test
 npm run build
 ```
 
-测试覆盖模型选择、生成参数、真实 Runnable 与工具事件、SQLite 保存和 SSE 处理。GitHub Actions 执行后端检查，以及 Linux、Windows、macOS 的前端测试与构建。桌面安装包分别使用 `npm run build:win`、`npm run build:mac`、`npm run build:linux`；Python 后端单独运行。
+测试覆盖模型选择、生成参数、真实 Runnable 与工具事件、SQLite 保存和 SSE 处理。桌面安装包分别使用 `npm run build:win`、`npm run build:mac`、`npm run build:linux`；Python 后端单独运行。
 
-重新生成 README 示例图：运行 `npm run demo`，在另一个前端终端执行 `npx playwright install chromium` 和 `npm run screenshot`。示例复用实际 Vue 会话组件，演示数据独立维护。
+重新生成 README 示例图：运行 `npm run demo`，在另一个前端终端执行 `npx playwright install chromium` 和 `npm run screenshot`。截图使用 Vue 会话组件。
 
 ## 许可证
 
