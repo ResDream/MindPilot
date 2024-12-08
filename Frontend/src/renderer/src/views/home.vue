@@ -403,7 +403,7 @@ const inputPlaceholder = computed(() => {
 onMounted(async () => {
   if (demoMode) {
     chatSettings.value.config_name = "Qwen2.5-72B-Instruct"
-    agents.value = [{ agent_id: 0, agent_name: "研发方案研究员", agent_abstract: "资料检索与预算核算",
+    agents.value = [{ agent_id: 0, agent_name: "技术资料助手", agent_abstract: "文档查询与数据计算",
       agent_info: "", temperature: 0.3, max_tokens: 4096, tool_config: [] }]
     selectedAgentId.value = 0
     localConversationConfig.value.agent_id = 0
@@ -1242,6 +1242,32 @@ const toKBConfig = () => router.push('/kbconfig')
   padding: 10px 12px;
   background: var(--mp-bg-2);
   border-radius: 8px;
+}
+
+.mp-assistant-text :deep(table) {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 8px 0 12px;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.mp-assistant-text :deep(th),
+.mp-assistant-text :deep(td) {
+  padding: 6px 10px;
+  text-align: left;
+  border-bottom: 1px solid var(--mp-border);
+}
+
+.mp-assistant-text :deep(th) {
+  background: var(--mp-bg-2);
+  font-weight: 600;
+}
+
+.mp-assistant-text :deep(a) {
+  color: #93c5fd;
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 .mp-assistant-text :deep(.mp-inline-code) {

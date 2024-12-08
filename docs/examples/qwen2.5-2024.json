@@ -1,0 +1,58 @@
+{
+  "cutoff": "2024-12-08",
+  "sources": {
+    "benchmark": "https://github.com/QwenLM/Qwen2.5/blob/a7b515534d739f6ebb66c5fe2595862ad7118edb/docs/source/benchmark/speed_benchmark.rst",
+    "timer": "https://github.com/QwenLM/Qwen2.5/blob/a7b515534d739f6ebb66c5fe2595862ad7118edb/examples/speed-benchmark/speed_benchmark_vllm.py",
+    "modelCard": "https://huggingface.co/Qwen/Qwen2.5-72B-Instruct/blob/d3d951150c1e5848237cd6a7ad11df4836aee842/README.md",
+    "config": "https://huggingface.co/Qwen/Qwen2.5-72B-Instruct/blob/d3d951150c1e5848237cd6a7ad11df4836aee842/config.json",
+    "functionCalling": "https://github.com/QwenLM/Qwen2.5/blob/a7b515534d739f6ebb66c5fe2595862ad7118edb/docs/source/framework/function_call.md",
+    "agentExample": "https://github.com/QwenLM/Qwen-Agent/blob/6037e4e68036360887e2d0171ea4ca0ea57ff35a/examples/function_calling.py"
+  },
+  "environment": {
+    "gpu": "NVIDIA A100 80GB",
+    "batchSize": 1,
+    "outputTokens": 2048,
+    "vllm": "0.6.3",
+    "torch": "2.4.0",
+    "transformers": "4.46.0",
+    "cuda": "12.1"
+  },
+  "model": {
+    "parametersBillions": 72.7,
+    "layers": 80,
+    "hiddenSize": 8192,
+    "queryHeads": 64,
+    "kvHeads": 8,
+    "defaultContext": 32768,
+    "extendedContext": 131072,
+    "maxGeneration": 8192
+  },
+  "vllmRows": [
+    {"model": "72B", "inputTokens": 1, "precision": "BF16", "gpus": 2, "tokensPerSecond": 18.19, "setting": "Setting 1: max_model_len=4096; gpu_memory_utilization=0.98; enforce_eager=True"},
+    {"model": "72B", "inputTokens": 6144, "precision": "GPTQ-Int4", "gpus": 1, "tokensPerSecond": 13.88, "setting": "Default"},
+    {"model": "72B", "inputTokens": 6144, "precision": "GPTQ-Int4", "gpus": 2, "tokensPerSecond": 42.50, "setting": "Setting 3: max_model_len=8192; gpu_memory_utilization=1.0; enforce_eager=True"},
+    {"model": "72B", "inputTokens": 14336, "precision": "BF16", "gpus": 4, "tokensPerSecond": 30.10, "setting": "Default"},
+    {"model": "72B", "inputTokens": 30720, "precision": "BF16", "gpus": 4, "tokensPerSecond": 27.53, "setting": "Default"},
+    {"model": "72B", "inputTokens": 30720, "precision": "GPTQ-Int8", "gpus": 2, "tokensPerSecond": 23.32, "setting": "Default"},
+    {"model": "72B", "inputTokens": 30720, "precision": "GPTQ-Int4", "gpus": 2, "tokensPerSecond": 30.98, "setting": "Default"},
+    {"model": "32B", "inputTokens": 30720, "precision": "BF16", "gpus": 2, "tokensPerSecond": 31.82, "setting": "Default"},
+    {"model": "32B", "inputTokens": 30720, "precision": "GPTQ-Int4", "gpus": 1, "tokensPerSecond": 35.66, "setting": "Default"},
+    {"model": "72B", "inputTokens": 129024, "precision": "GPTQ-Int4", "gpus": 2, "tokensPerSecond": 10.11, "setting": "Setting 5: max_model_len=131072; gpu_memory_utilization=0.9; enforce_eager=False"}
+  ],
+  "transformersRows": [
+    {"model": "72B", "inputTokens": 1, "precision": "BF16", "gpus": 2, "tokensPerSecond": 8.73, "memoryGB": 136.20},
+    {"model": "72B", "inputTokens": 14336, "precision": "BF16", "gpus": 3, "tokensPerSecond": 4.25, "memoryGB": 149.14},
+    {"model": "72B", "inputTokens": 30720, "precision": "BF16", "gpus": 3, "tokensPerSecond": 2.94, "memoryGB": 164.79},
+    {"model": "72B", "inputTokens": 30720, "precision": "GPTQ-Int4", "gpus": 2, "tokensPerSecond": 3.14, "memoryGB": 62.57}
+  ],
+  "calculations": [
+    {"id": "weights", "expression": "72.7e9*2/1024**3", "value": 135.41430234909058, "unit": "GiB"},
+    {"id": "kv-token", "expression": "2*80*8*(8192/64)*2", "value": 327680, "unit": "bytes/token"},
+    {"id": "kv-request", "expression": "2*80*8*(8192/64)*2*32768/1024**3", "value": 10, "unit": "GiB"},
+    {"id": "kv-batch", "expression": "2*80*8*(8192/64)*2*32768*8/1024**3", "value": 80, "unit": "GiB"},
+    {"id": "resident", "expression": "72.7e9*2/1024**3+2*80*8*(8192/64)*2*32768*8/1024**3", "value": 215.41430234909058, "unit": "GiB"},
+    {"id": "time-72b", "expression": "2048/30.98", "value": 66.10716591349258, "unit": "seconds"},
+    {"id": "time-32b", "expression": "2048/31.82", "value": 64.36203645505971, "unit": "seconds"},
+    {"id": "time-32b-int4", "expression": "2048/35.66", "value": 57.43129556926529, "unit": "seconds"}
+  ]
+}

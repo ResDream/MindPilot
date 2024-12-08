@@ -4,9 +4,9 @@ Desktop agents with local models, knowledge retrieval and a live execution timel
 
 [English](README.md) · [中文](README-zh.md)
 
-![MindPilot: a multi-stage research and deployment task](docs/images/home.png)
+![MindPilot: Qwen2.5 deployment analysis using historical technical sources](docs/images/home.png)
 
-This example follows a long-running task: checking internal requirements, retrieving research and model documentation, calculating deployment budgets, resolving conflicting constraints and producing an acceptance checklist.
+The example examines an eight-user, long-context Qwen2.5 service on two A100 GPUs. It follows 14 tool calls through historical model configuration, GQA cache calculations, official benchmark rows and their timing method. Numeric inputs come from official sources published by December 8, 2024. [Data and versioned sources](docs/examples/qwen2.5-2024.json).
 
 ## Features
 

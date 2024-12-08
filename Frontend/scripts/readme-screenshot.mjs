@@ -25,6 +25,12 @@ try {
   }))
   if (finalLayout.content > finalLayout.height) throw new Error("任务记录超出截图范围")
   if (await page.locator(".mp-assistant-text h2").count() !== 1) throw new Error("最终报告标题缺失")
+  if (await page.locator(".mp-msg-row").count() !== 30) throw new Error("任务记录数量不完整")
+  if (await page.locator(".mp-assistant-text table").count() !== 3) throw new Error("性能比较表缺失")
+  const contentFits = await page.locator(".mp-timeline").evaluate((element) =>
+    element.scrollWidth <= element.clientWidth
+  )
+  if (!contentFits) throw new Error("任务内容超出页面宽度")
   await page.screenshot({ path: resolve("../docs/images/home.png"), fullPage: true, scale: "device" })
   console.log(JSON.stringify({ pageErrors: errors.length, taskRows: await page.locator(".mp-msg-row").count(), layout: finalLayout }))
 } finally {

@@ -4,9 +4,9 @@
 
 [English](README.md) · [中文](README-zh.md)
 
-![MindPilot：多阶段研究与部署任务](docs/images/home.png)
+![MindPilot：结合历史技术资料分析 Qwen2.5 部署条件](docs/images/home.png)
 
-示例展示一个长程任务：读取内部需求、检索研究资料和模型文档、计算部署预算、核查矛盾并整理验收清单。
+示例围绕两张 A100、八用户长文问答展开，通过 14 次工具调用核查模型配置、计算 GQA 缓存、比较官方测试记录并追踪计时方法。数据取自截至 2024 年 12 月 8 日的官方资料，附有[原始数值与版本链接](docs/examples/qwen2.5-2024.json)。
 
 ## 功能
 
