@@ -73,7 +73,6 @@
           </el-dropdown>
         </div>
         <div class="mp-topbar-right">
-          <span v-if="demoMode" class="mp-demo-label">演示数据 · 多阶段任务</span>
           <span v-if="selectedAgentId !== -1" class="mp-agent-hint">{{ headerText }}</span>
         </div>
       </header>
@@ -830,13 +829,6 @@ const toKBConfig = () => router.push('/kbconfig')
 </script>
 
 <style scoped>
-.mp-demo-label {
-  padding: 6px 12px;
-  border: 1px solid #436354;
-  border-radius: 6px;
-  color: #b9dcc6;
-  font-size: 12px;
-}
 .mono {
   font-family: var(--mp-font-mono);
 }
@@ -1073,7 +1065,7 @@ const toKBConfig = () => router.push('/kbconfig')
 .mp-timeline {
   flex: 1;
   overflow-y: auto;
-  padding: 16px 0 24px;
+  padding: 8px 0 16px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1081,9 +1073,9 @@ const toKBConfig = () => router.push('/kbconfig')
 
 .mp-msg-row {
   width: 100%;
-  max-width: 760px;
-  padding: 0 24px;
-  margin-bottom: 6px;
+  max-width: 1160px;
+  padding: 0 28px;
+  margin-bottom: 4px;
 }
 
 /* 空状态 */
@@ -1128,14 +1120,14 @@ const toKBConfig = () => router.push('/kbconfig')
 
 /* 用户气泡 */
 .mp-user-bubble {
-  margin: 18px 0 6px auto;
+  margin: 8px 0 12px auto;
   width: fit-content;
-  max-width: 70%;
+  max-width: 88%;
   background: var(--mp-bg-2);
-  border-radius: 24px;
+  border-radius: 16px;
   padding: 10px 18px;
   color: var(--mp-text-0);
-  line-height: 1.65;
+  line-height: 1.45;
   white-space: pre-wrap;
   word-break: break-word;
 }
@@ -1150,7 +1142,7 @@ const toKBConfig = () => router.push('/kbconfig')
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 6px 10px 6px 4px;
+  padding: 4px 10px 4px 4px;
   cursor: pointer;
   user-select: none;
   border-radius: 8px;
@@ -1181,7 +1173,7 @@ const toKBConfig = () => router.push('/kbconfig')
 }
 
 .mp-step-body {
-  margin: 2px 0 8px 10px;
+  margin: 2px 0 4px 10px;
   padding: 4px 0 4px 16px;
   border-left: 1px solid var(--mp-border);
 }
@@ -1189,13 +1181,14 @@ const toKBConfig = () => router.push('/kbconfig')
 .thought-body {
   color: var(--mp-text-2);
   font-size: 13px;
-  line-height: 1.65;
+  line-height: 1.45;
   white-space: pre-wrap;
   word-break: break-word;
 }
 
 .mp-json {
   margin: 0;
+  line-height: 1.4;
   font-size: 12px;
   color: var(--mp-text-2);
   white-space: pre-wrap;
@@ -1206,19 +1199,49 @@ const toKBConfig = () => router.push('/kbconfig')
 
 /* 助手文本 */
 .mp-assistant {
-  padding: 4px 0 10px;
+  padding: 2px 0 4px;
 }
 
 .mp-assistant-text {
   color: var(--mp-text-0);
-  line-height: 1.8;
-  white-space: pre-wrap;
+  line-height: 1.5;
+  white-space: normal;
   word-break: break-word;
   font-size: 15px;
 }
 
 .mp-assistant-text :deep(strong) {
   font-weight: 600;
+}
+
+.mp-assistant-text :deep(p) {
+  margin: 0 0 6px;
+}
+
+.mp-assistant-text :deep(h1),
+.mp-assistant-text :deep(h2),
+.mp-assistant-text :deep(h3) {
+  margin: 12px 0 6px;
+  line-height: 1.3;
+  font-size: 18px;
+}
+
+.mp-assistant-text :deep(ul),
+.mp-assistant-text :deep(ol) {
+  margin: 6px 0;
+  padding-left: 24px;
+}
+
+.mp-assistant-text :deep(li) {
+  margin: 3px 0;
+}
+
+.mp-assistant-text :deep(pre) {
+  white-space: pre-wrap;
+  margin: 8px 0;
+  padding: 10px 12px;
+  background: var(--mp-bg-2);
+  border-radius: 8px;
 }
 
 .mp-assistant-text :deep(.mp-inline-code) {
@@ -1231,7 +1254,7 @@ const toKBConfig = () => router.push('/kbconfig')
 /* 执行中 */
 .mp-working {
   width: 100%;
-  max-width: 760px;
+  max-width: 1160px;
   padding: 8px 24px;
   display: flex;
   align-items: center;
@@ -1258,10 +1281,10 @@ const toKBConfig = () => router.push('/kbconfig')
 
 .mp-composer {
   width: 100%;
-  max-width: 760px;
+  max-width: 1104px;
   background: var(--mp-bg-2);
   border: none;
-  border-radius: 28px;
+  border-radius: 18px;
   padding: 14px 16px 10px;
 }
 
